@@ -11,6 +11,7 @@ import {
   StyleSheet,
   ScrollView,
   StatusBar,
+  Alert,
 } from "react-native";
 import styles from "./styles";
 import * as Animatable from "react-native-animatable";
