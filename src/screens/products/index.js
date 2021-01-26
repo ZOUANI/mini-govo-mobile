@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import styles from "./styles";
-import { products, categories } from "../../data/dataArrays";
+// import { products, categories } from "../../data/dataArrays";
 import InputSpinner from "react-native-input-spinner";
 import { MaterialIcons } from "@expo/vector-icons";
 import {
@@ -11,28 +12,30 @@ import {
   Image,
   ToastAndroid,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import Dialog from "react-native-dialog";
+import { API_URL as URL } from "../../utils/constants";
 
-function getProductsByCategory(categoryId) {
-  const productsArray = [];
-  products.map((data) => {
-    if (data.categoryId == categoryId) {
-      productsArray.push(data);
-    }
-  });
-  return productsArray;
-}
+// function getProductsByCategory(categoryId) {
+//   const productsArray = [];
+//   products.map((data) => {
+//     if (data.categoryId == categoryId) {
+//       productsArray.push(data);
+//     }
+//   });
+//   return productsArray;
+// }
 
-function getCategoryName(categoryId) {
-  let name;
-  categories.map((data) => {
-    if (data.id == categoryId) {
-      name = data.name;
-    }
-  });
-  return name;
-}
+// function getCategoryName(categoryId) {
+//   let name;
+//   categories.map((data) => {
+//     if (data.id == categoryId) {
+//       name = data.name;
+//     }
+//   });
+//   return name;
+// }
 
 const Toast = ({ visible, message }) => {
   if (visible) {
@@ -53,12 +56,36 @@ export default function Products({ route, navigation }) {
   const [visibleToast, setvisibleToast] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [selectedItem, setSelectedItem] = useState({});
-  const { category, title } = route.params;
+  const { category, label } = route.params;
 
-  const productsArray = getProductsByCategory(category.id);
+  // const productsArray = getProductsByCategory(category.id);
+
+  const [products, setProducts] = React.useState([]);
+
+  useEffect(() => {
+    findProductsByCategory(category.id);
+  }, []);
+
+  const findProductsByCategory = (categoryId) => {
+    axios
+      .get(URL + "/generated/product/categoryProduit/id/" + categoryId)
+      .then((response) => {
+        console.log("Products Array == ", response.data);
+        setProducts(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+        Alert.alert(
+          "Echec de la connexion !",
+          "Il y a un problème au niveau du serveur !",
+          [{ text: "OK" }]
+        );
+        return;
+      });
+  };
 
   onPressProduct = (item) => {
-    console.log("Clicked product card " + item.title);
+    console.log("Clicked product card " + item.label);
     setVisible(true);
     setSelectedItem(item);
   };
@@ -74,10 +101,11 @@ export default function Products({ route, navigation }) {
     >
       <View style={styles.superContainer}>
         <View style={styles.container}>
-          <Image style={styles.photo} source={{ uri: item.photo_url }} />
-          <Text style={styles.title}>{item.title}</Text>
+          <Image style={styles.photo} source={{ uri: item.imagePath }} />
+          <Text style={styles.title}>{item.label}</Text>
           <Text style={styles.category}>
-            {getCategoryName(item.categoryId)}
+            {/* {getCategoryName(item.categoryProduitVo.id)} */}
+            {item.categoryProduitVo.label}
           </Text>
         </View>
       </View>
@@ -92,7 +120,7 @@ export default function Products({ route, navigation }) {
           "Vous avez ajouté " +
           quantity +
           " " +
-          selectedItem.title +
+          selectedItem.label +
           " a votre panier "
         }
       />
@@ -100,9 +128,9 @@ export default function Products({ route, navigation }) {
         vertical
         showsVerticalScrollIndicator={false}
         numColumns={2}
-        data={productsArray}
+        data={products}
         renderItem={renderProducts}
-        keyExtractor={(item) => `${item.productId}`}
+        keyExtractor={(item) => `${item.id}`}
       />
 
       <View
@@ -168,7 +196,7 @@ export default function Products({ route, navigation }) {
             }}
           >
             <Dialog.Title style={{ alignSelf: "center", marginBottom: 10 }}>
-              {selectedItem.title}
+              {selectedItem.label}
             </Dialog.Title>
             <Dialog.Input
               placeholder="Description.."

@@ -64,9 +64,9 @@ export default function SuperCategories({ navigation }) {
   };
 
   onPressCategory = (item) => {
-    const title = item.label;
+    const label = item.label;
     const category = item;
-    navigation.navigate("Products", { category, title });
+    navigation.navigate("Products", { category, label });
   };
 
   renderCategory = ({ item }) => (
