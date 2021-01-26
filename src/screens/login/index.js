@@ -1,4 +1,5 @@
 import React from "react";
+import axios from "axios";
 import {
   View,
   Text,
@@ -14,6 +15,7 @@ import * as Animatable from "react-native-animatable";
 // import LinearGradient from "react-native-linear-gradient";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import Feather from "react-native-vector-icons/Feather";
+import { API_URL as URL } from "../../utils/constants";
 
 // import { useTheme } from "react-native-paper";
 
@@ -23,7 +25,7 @@ import { users } from "../../data/dataArrays";
 
 const Login = ({ navigation }) => {
   const [data, setData] = React.useState({
-    username: "",
+    email: "",
     password: "",
     check_textInputChange: false,
     secureTextEntry: true,
@@ -39,14 +41,14 @@ const Login = ({ navigation }) => {
     if (val.trim().length >= 4) {
       setData({
         ...data,
-        username: val,
+        email: val,
         check_textInputChange: true,
         isValidUser: true,
       });
     } else {
       setData({
         ...data,
-        username: val,
+        email: val,
         check_textInputChange: false,
         isValidUser: false,
       });
@@ -90,30 +92,86 @@ const Login = ({ navigation }) => {
     }
   };
 
-  const loginHandle = (username, password) => {
+  const loginHandle = (email, password) => {
     console.log("********** Login Screen (loginHandle) **********");
-    const foundUser = users.filter((item) => {
-      return username == item.username && password == item.password;
-    });
 
-    if (data.username.length == 0 || data.password.length == 0) {
+    if (data.email.length == 0 || data.password.length == 0) {
       Alert.alert(
-        "Wrong Input!",
-        "Username or password field cannot be empty.",
+        "Echec !",
+        "L'email et le mot de passe ne doivent pas être vides !",
         [{ text: "Okay" }]
       );
       return;
     }
 
-    if (foundUser.length == 0) {
-      Alert.alert("Invalid User!", "Username or password is incorrect.", [
-        { text: "Okay" },
-      ]);
-      return;
-    }
-    console.log("********** LOGIN SUCCESS **********");
-    console.log("Welcome ", foundUser[0].nom, " ", foundUser[0].prenom);
-    signIn(foundUser);
+    let postData = {
+      email: email.trim(),
+      password: password,
+    };
+
+    getUserByLogin(postData);
+
+    // if (foundUser == null) {
+    //   Alert.alert(
+    //     "Echec de la connexion !",
+    //     "Email ou mot de passe est incorrect !",
+    //     [{ text: "OK" }]
+    //   );
+    //   return;
+    // }
+    // const foundUser = users.filter((item) => {
+    //   return email == item.email && password == item.password;
+    // });
+
+    // console.log("********** LOGIN SUCCESS **********");
+    // console.log("Welcome 1 ", foundUser);
+    // console.log("Welcome 2 ", foundUser[0]);
+    // console.log("Welcome ", foundUser[0].nom, " ", foundUser[0].prenom);
+    // signIn(foundUser);
+  };
+
+  const getUserByLogin = (postData) => {
+    axios
+      .post(URL + "/generated/auth/login", postData)
+      .then((response) => {
+        console.log("TOKEN == ", response.data.token);
+        console.log("USER == ", response.data.userVo);
+
+        if (response.data.token == null || response.data.token.length == 0) {
+          Alert.alert(
+            "Echec de la connexion !",
+            "L'email ou le mot de passe est incorrect !",
+            [{ text: "OK" }]
+          );
+          return;
+        }
+
+        const foundUser = {
+          id: response.data.userVo.id,
+          nom: response.data.userVo.lastName,
+          prenom: response.data.userVo.firstName,
+          email: response.data.userVo.email,
+          code: response.data.userVo.code,
+          password: response.data.userVo.password,
+          role_id: response.data.userVo.roleVo.id,
+          userToken: response.data.token,
+        };
+
+        console.log("Welcome", foundUser.prenom, foundUser.nom);
+        signIn(foundUser);
+        // setTimeout(() => {
+        //   // console.log("TIME OUT !!");
+        // }, 2000);
+      })
+      .catch((error) => {
+        console.log(error);
+        Alert.alert(
+          "Echec de la connexion !",
+          "L'email ou le mot de passe est incorrect !",
+          [{ text: "OK" }]
+        );
+        return;
+      });
   };
 
   return (
@@ -191,7 +249,7 @@ const Login = ({ navigation }) => {
           {/* <TouchableOpacity
             style={styles.signIn}
             onPress={() => {
-              loginHandle(data.username, data.password);
+              loginHandle(data.email, data.password);
             }}
           >
             <View
@@ -213,7 +271,7 @@ const Login = ({ navigation }) => {
 
           <TouchableOpacity
             onPress={() => {
-              loginHandle(data.username, data.password);
+              loginHandle(data.email, data.password);
             }}
             style={[
               styles.signIn,

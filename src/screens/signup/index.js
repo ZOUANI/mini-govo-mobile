@@ -19,6 +19,7 @@ import FontAwesome from "react-native-vector-icons/FontAwesome";
 import Feather from "react-native-vector-icons/Feather";
 // import api_url from "../../utils/constants";
 import { API_URL as URL } from "../../utils/constants";
+import { AuthContext } from "../../components/context";
 
 const Signup = ({ navigation }) => {
   const [data, setData] = React.useState({
@@ -32,6 +33,8 @@ const Signup = ({ navigation }) => {
     confirm_secureTextEntry: true,
   });
 
+  const { signUp } = React.useContext(AuthContext);
+
   const registerHandle = (email, password, first_name, last_name) => {
     console.log("********** REGISTER TRIGGERED **********");
     console.log("email = ", email);
@@ -39,10 +42,13 @@ const Signup = ({ navigation }) => {
     console.log("first_name = ", first_name);
     console.log("last_name = ", last_name);
     let postData = {
-      email: email,
+      email: email.trim(),
       password: password,
-      firstName: first_name,
-      lastName: last_name,
+      firstName: first_name.trim(),
+      lastName: last_name.trim(),
+      roleVo: {
+        id: "2", //Client's id hwa 2
+      },
     };
 
     register(postData);
@@ -50,17 +56,35 @@ const Signup = ({ navigation }) => {
 
   const register = (postData) => {
     axios
-      .post(URL + "/generated/user/", postData)
+      .post(URL + "/generated/auth/register", postData)
       .then((response) => {
-        console.log("getting data from axios", response.data);
+        console.log("TOKEN == ", response.data.token);
+        console.log("USER == ", response.data.userVo);
 
-        setTimeout(() => {
-          console.log("TIME OUT !!");
-        }, 2000);
+        const foundUser = {
+          id: response.data.userVo.id,
+          nom: response.data.userVo.lastName,
+          prenom: response.data.userVo.firstName,
+          email: response.data.userVo.email,
+          code: response.data.userVo.code,
+          password: response.data.userVo.password,
+          role_id: response.data.userVo.roleVo.id,
+          userToken: response.data.token,
+        };
+
+        console.log("Welcome", foundUser.prenom, foundUser.nom);
+        signUp(foundUser);
+        // setTimeout(() => {
+        //   console.log("TIME OUT !!");
+        // }, 2000);
       })
       .catch((error) => {
-        console.log("KAYN CHI ERROR !!!!!!!");
+        // console.log("KAYN CHI ERROR !!!!!!!");
         console.log(error);
+        Alert.alert("Echec !", "Il y a un problème au niveau du serveur !", [
+          { text: "OK" },
+        ]);
+        return;
       });
   };
 
