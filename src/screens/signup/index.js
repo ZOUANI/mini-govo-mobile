@@ -46,6 +46,7 @@ const Signup = ({ navigation }) => {
       password: password,
       firstName: first_name.trim(),
       lastName: last_name.trim(),
+      enabled: 1,
       roleVo: {
         id: "2", //Client's id hwa 2
       },
