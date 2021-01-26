@@ -16,12 +16,16 @@ import { DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer";
 
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
-// import { AuthContext } from "../components/context";
+import { AuthContext } from "../../components/context";
 
 export function DrawerContent(props) {
   const paperTheme = useTheme();
 
-  //   const { signOut, toggleTheme } = React.useContext(AuthContext);
+  React.useEffect(() => {
+    console.log("mState from drawer content == ", props.mState);
+  }, [props.mState]);
+
+  const { signOut } = React.useContext(AuthContext);
 
   return (
     <View style={{ flex: 1 }}>
@@ -84,60 +88,81 @@ export function DrawerContent(props) {
                 props.navigation.navigate("Panier");
               }}
             />
-            <DrawerItem
-              icon={({ color, size }) => (
-                <Icon name="script-text-outline" color={color} size={size} />
-              )}
-              label="Mes commandes"
-              onPress={() => {
-                props.navigation.navigate("MesCommandes", {
-                  screen: "MesCommandes",
-                });
-              }}
-            />
-            <DrawerItem
-              icon={({ color, size }) => (
-                <Icon name="login" color={color} size={size} />
-              )}
-              label="Se connecter"
-              onPress={() => {
-                props.navigation.navigate("Home", { screen: "Login" });
-              }}
-            />
-            <DrawerItem
-              icon={({ color, size }) => (
-                <Icon name="account-plus-outline" color={color} size={size} />
-              )}
-              label="Inscription"
-              onPress={() => {
-                props.navigation.navigate("Home", { screen: "Register" });
-              }}
-            />
+            {props.mState.userToken !== null && (
+              <DrawerItem
+                icon={({ color, size }) => (
+                  <Icon name="script-text-outline" color={color} size={size} />
+                )}
+                label="Mes commandes"
+                onPress={() => {
+                  props.navigation.navigate("MesCommandes", {
+                    screen: "MesCommandes",
+                  });
+                }}
+              />
+            )}
+
+            {props.mState.userToken === null && (
+              <View>
+                <DrawerItem
+                  icon={({ color, size }) => (
+                    <Icon name="login" color={color} size={size} />
+                  )}
+                  label="Se connecter"
+                  onPress={() => {
+                    props.navigation.navigate("Auth", { screen: "Login" });
+                  }}
+                />
+                <DrawerItem
+                  icon={({ color, size }) => (
+                    <Icon
+                      name="account-plus-outline"
+                      color={color}
+                      size={size}
+                    />
+                  )}
+                  label="Inscription"
+                  onPress={() => {
+                    props.navigation.navigate("Auth", { screen: "Register" });
+                  }}
+                />
+              </View>
+            )}
           </Drawer.Section>
-          <Drawer.Section style={styles.drawerSection}>
-            <DrawerItem
-              icon={({ color, size }) => (
-                <Icon name="calendar-text-outline" color={color} size={size} />
-              )}
-              label="Tâches (Collab.)"
-              onPress={() => {
-                props.navigation.navigate("Tasks", { screen: "AffectedTasks" });
-              }}
-            />
-          </Drawer.Section>
+          {props.mState.userToken !== null && (
+            <Drawer.Section style={styles.drawerSection}>
+              <DrawerItem
+                icon={({ color, size }) => (
+                  <Icon
+                    name="calendar-text-outline"
+                    color={color}
+                    size={size}
+                  />
+                )}
+                label="Tâches (Collab.)"
+                onPress={() => {
+                  props.navigation.navigate("Tasks", {
+                    screen: "AffectedTasks",
+                  });
+                }}
+              />
+            </Drawer.Section>
+          )}
         </View>
       </DrawerContentScrollView>
-      <Drawer.Section style={styles.bottomDrawerSection}>
-        <DrawerItem
-          icon={({ color, size }) => (
-            <Icon name="settings-outline" color={color} size={size} />
-          )}
-          label="Paramètres"
-          //   onPress={() => {
-          //     signOut();
-          //   }}
-        />
-      </Drawer.Section>
+      {props.mState.userToken != null && (
+        <Drawer.Section style={styles.bottomDrawerSection}>
+          <DrawerItem
+            icon={({ color, size }) => (
+              <Icon name="exit-to-app" color={color} size={size} />
+            )}
+            label="Logout"
+            onPress={() => {
+              signOut();
+            }}
+          />
+        </Drawer.Section>
+      )}
     </View>
   );
 }

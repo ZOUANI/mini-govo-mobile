@@ -3,12 +3,9 @@ import {
   FlatList,
   Text,
   View,
-  Button,
-  ScrollView,
   TouchableHighlight,
   TouchableOpacity,
   Image,
-  ToastAndroid,
 } from "react-native";
 import InputSpinner from "react-native-input-spinner";
 // import styles from "../../styles/styles";
@@ -34,7 +31,8 @@ export default function Panier({ route, navigation }) {
   }, []);
 
   onPressGoToRegister = () => {
-    navigation.navigate("Register");
+    console.log("Token dyal panier hwa == ", mToken);
+    // navigation.navigate("Register");
   };
 
   renderProducts = ({ item }) => (

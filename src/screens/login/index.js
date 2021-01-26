@@ -17,7 +17,7 @@ import Feather from "react-native-vector-icons/Feather";
 
 // import { useTheme } from "react-native-paper";
 
-// import { AuthContext } from "../../components/context";
+import { AuthContext } from "../../components/context";
 
 import { users } from "../../data/dataArrays";
 
@@ -33,7 +33,7 @@ const Login = ({ navigation }) => {
 
   // const { colors } = useTheme();
 
-  // const { signIn } = React.useContext(AuthContext);
+  const { signIn } = React.useContext(AuthContext);
 
   const textInputChange = (val) => {
     if (val.trim().length >= 4) {
@@ -90,28 +90,30 @@ const Login = ({ navigation }) => {
     }
   };
 
-  const loginHandle = (userName, password) => {
-    console.log("LOGGED IN !");
-    // const foundUser = users.filter((item) => {
-    //   return userName == item.username && password == item.password;
-    // });
+  const loginHandle = (username, password) => {
+    console.log("********** Login Screen (loginHandle) **********");
+    const foundUser = users.filter((item) => {
+      return username == item.username && password == item.password;
+    });
 
-    // if (data.username.length == 0 || data.password.length == 0) {
-    //   Alert.alert(
-    //     "Wrong Input!",
-    //     "Username or password field cannot be empty.",
-    //     [{ text: "Okay" }]
-    //   );
-    //   return;
-    // }
+    if (data.username.length == 0 || data.password.length == 0) {
+      Alert.alert(
+        "Wrong Input!",
+        "Username or password field cannot be empty.",
+        [{ text: "Okay" }]
+      );
+      return;
+    }
 
-    // if (foundUser.length == 0) {
-    //   Alert.alert("Invalid User!", "Username or password is incorrect.", [
-    //     { text: "Okay" },
-    //   ]);
-    //   return;
-    // }
-    // signIn(foundUser);
+    if (foundUser.length == 0) {
+      Alert.alert("Invalid User!", "Username or password is incorrect.", [
+        { text: "Okay" },
+      ]);
+      return;
+    }
+    console.log("********** LOGIN SUCCESS **********");
+    console.log("Welcome ", foundUser[0].nom, " ", foundUser[0].prenom);
+    signIn(foundUser);
   };
 
   return (

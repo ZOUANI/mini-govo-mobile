@@ -22,11 +22,12 @@ const getFonts = () =>
   });
 
 export default function App() {
+  // const AuthContext = React.createContext();
   const [fontsLoaded, setFontsLoaded] = useState(false);
 
   const initialLoginState = {
     isLoading: true,
-    userName: null,
+    username: null,
     userToken: null,
   };
 
@@ -41,21 +42,21 @@ export default function App() {
       case "LOGIN":
         return {
           ...prevState,
-          userName: action.id,
+          username: action.id,
           userToken: action.token,
           isLoading: false,
         };
       case "LOGOUT":
         return {
           ...prevState,
-          userName: null,
+          username: null,
           userToken: null,
           isLoading: false,
         };
       case "REGISTER":
         return {
           ...prevState,
-          userName: action.id,
+          username: action.id,
           userToken: action.token,
           isLoading: false,
         };
@@ -67,13 +68,49 @@ export default function App() {
     initialLoginState
   );
 
+  React.useEffect(() => {
+    // Fetch the token from storage then navigate to our appropriate place
+    const bootstrapAsync = async () => {
+      let userToken;
+
+      try {
+        userToken = await AsyncStorage.getItem("userToken");
+        console.log("USER TOKEN == ", userToken);
+      } catch (e) {
+        console.log(e);
+        // Restoring token failed
+      }
+
+      // After restoring token, we may need to validate it in production apps
+
+      // This will switch to the App screen or Auth screen and this loading
+      // screen will be unmounted and thrown away.
+      dispatch({ type: "RETRIEVE_TOKEN", token: userToken });
+    };
+
+    bootstrapAsync();
+
+    // setTimeout(async () => {
+    //   // setIsLoading(false);
+    //   let userToken;
+    //   // userToken = null;
+    //   try {
+    //     userToken = await AsyncStorage.getItem("userToken");
+    //   } catch (e) {
+    //     console.log(e);
+    //   }
+    //   // console.log('user token: ', userToken);
+    //   dispatch({ type: "RETRIEVE_TOKEN", token: userToken });
+    // }, 1000);
+  }, []);
+
   const authContext = React.useMemo(
     () => ({
       signIn: async (foundUser) => {
         // setUserToken('fgkj');
         // setIsLoading(false);
         const userToken = String(foundUser[0].userToken);
-        const userName = foundUser[0].username;
+        const username = foundUser[0].username;
 
         try {
           await AsyncStorage.setItem("userToken", userToken);
@@ -81,7 +118,7 @@ export default function App() {
           console.log(e);
         }
         // console.log('user token: ', userToken);
-        dispatch({ type: "LOGIN", id: userName, token: userToken });
+        dispatch({ type: "LOGIN", id: username, token: userToken });
       },
       signOut: async () => {
         // setUserToken(null);
@@ -101,31 +138,29 @@ export default function App() {
     []
   );
 
-  useEffect(() => {
-    setTimeout(async () => {
-      // setIsLoading(false);
-      let userToken;
-      userToken = null;
-      try {
-        userToken = await AsyncStorage.getItem("userToken");
-      } catch (e) {
-        console.log(e);
-      }
-      // console.log('user token: ', userToken);
-      dispatch({ type: "RETRIEVE_TOKEN", token: userToken });
-    }, 1000);
-  }, []);
+  return (
+    <AuthContext.Provider value={authContext}>
+      {/* <Stack.Navigator> */}
+      <Navigator loginState={loginState} />
+      {/* {loginState.userToken == null ? (
+        <Navigator logged={false} />
+      ) : (
+        <Navigator logged={true} />
+      )} */}
+      {/* </Stack.Navigator> */}
+    </AuthContext.Provider>
+  );
 
   // return (
   // <AuthContext.Provider value={authContext}>
   // {/* <Navigator loginState={loginState} />; */}
-  if (fontsLoaded) {
-    return <Navigator />;
-  } else {
-    return (
-      <AppLoading startAsync={getFonts} onFinish={() => setFontsLoaded(true)} />
-    );
-  }
+  // if (fontsLoaded) {
+  //   return <Navigator />;
+  // } else {
+  //   return (
+  //     <AppLoading startAsync={getFonts} onFinish={() => setFontsLoaded(true)} />
+  //   );
+  // }
   // </AuthContext.Provider>
   // );
 }

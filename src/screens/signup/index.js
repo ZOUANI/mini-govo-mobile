@@ -1,4 +1,5 @@
 import React from "react";
+import axios from "axios";
 import {
   View,
   Text,
@@ -16,10 +17,14 @@ import * as Animatable from "react-native-animatable";
 // import LinearGradient from "react-native-linear-gradient";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import Feather from "react-native-vector-icons/Feather";
+// import api_url from "../../utils/constants";
+import { API_URL as URL } from "../../utils/constants";
 
 const Signup = ({ navigation }) => {
   const [data, setData] = React.useState({
-    username: "",
+    first_name: "",
+    last_name: "",
+    email: "",
     password: "",
     confirm_password: "",
     check_textInputChange: false,
@@ -27,20 +32,89 @@ const Signup = ({ navigation }) => {
     confirm_secureTextEntry: true,
   });
 
-  const textInputChange = (val) => {
-    if (val.length !== 0) {
-      setData({
-        ...data,
-        username: val,
-        check_textInputChange: true,
+  const registerHandle = (email, password, first_name, last_name) => {
+    console.log("********** REGISTER TRIGGERED **********");
+    console.log("email = ", email);
+    console.log("password = ", password);
+    console.log("first_name = ", first_name);
+    console.log("last_name = ", last_name);
+    let postData = {
+      email: email,
+      password: password,
+      firstName: first_name,
+      lastName: last_name,
+    };
+
+    register(postData);
+  };
+
+  const register = (postData) => {
+    axios
+      .post(URL + "/generated/user/", postData)
+      .then((response) => {
+        console.log("getting data from axios", response.data);
+
+        setTimeout(() => {
+          console.log("TIME OUT !!");
+        }, 2000);
+      })
+      .catch((error) => {
+        console.log("KAYN CHI ERROR !!!!!!!");
+        console.log(error);
       });
-    } else {
+  };
+
+  const validateEmail = (text) => {
+    console.log("validatin : ", text);
+    let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    if (reg.test(text) === false) {
+      console.log("Email is Not Correct");
       setData({
         ...data,
-        username: val,
+        email: val,
         check_textInputChange: false,
       });
+      return false;
+    } else {
+      console.log("Email is Correct");
+      setData({
+        ...data,
+        email: val,
+        check_textInputChange: true,
+      });
     }
+  };
+
+  const textInputChange = (val) => {
+    let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    if (reg.test(val) === false) {
+      console.log("Email is Not Correct");
+      setData({
+        ...data,
+        email: val,
+        check_textInputChange: false,
+      });
+    } else {
+      console.log("Email is Correct");
+      setData({
+        ...data,
+        email: val,
+        check_textInputChange: true,
+      });
+    }
+    // if (val.length !== 0) {
+    //   setData({
+    //     ...data,
+    //     email: val,
+    //     check_textInputChange: true,
+    //   });
+    // } else {
+    //   setData({
+    //     ...data,
+    //     email: val,
+    //     check_textInputChange: false,
+    //   });
+    // }
   };
 
   const handlePasswordChange = (val) => {
@@ -50,12 +124,26 @@ const Signup = ({ navigation }) => {
     });
   };
 
-  const handleConfirmPasswordChange = (val) => {
+  const handlePrenomChange = (val) => {
     setData({
       ...data,
-      confirm_password: val,
+      first_name: val,
     });
   };
+
+  const handleNomChange = (val) => {
+    setData({
+      ...data,
+      last_name: val,
+    });
+  };
+
+  // const handleConfirmPasswordChange = (val) => {
+  //   setData({
+  //     ...data,
+  //     confirm_password: val,
+  //   });
+  // };
 
   const updateSecureTextEntry = () => {
     setData({
@@ -79,14 +167,14 @@ const Signup = ({ navigation }) => {
       </View>
       <Animatable.View animation="fadeInUpBig" style={styles.footer}>
         <ScrollView>
-          <Text style={styles.text_footer}>Nom et prénom</Text>
+          <Text style={styles.text_footer}>Nom</Text>
           <View style={styles.action}>
             <FontAwesome name="user-o" color="#05375a" size={20} />
             <TextInput
-              placeholder="Votre nom et prénom"
+              placeholder="Votre nom"
               style={styles.textInput}
               autoCapitalize="none"
-              onChangeText={(val) => textInputChange(val)}
+              onChangeText={(val) => handleNomChange(val)}
             />
             {data.check_textInputChange ? (
               <Animatable.View animation="bounceIn">
@@ -99,7 +187,32 @@ const Signup = ({ navigation }) => {
             style={[
               styles.text_footer,
               {
-                marginTop: 35,
+                marginTop: 25,
+              },
+            ]}
+          >
+            Prénom
+          </Text>
+          <View style={styles.action}>
+            <FontAwesome name="user-o" color="#05375a" size={20} />
+            <TextInput
+              placeholder="Votre prénom"
+              style={styles.textInput}
+              autoCapitalize="none"
+              onChangeText={(val) => handlePrenomChange(val)}
+            />
+            {data.check_textInputChange ? (
+              <Animatable.View animation="bounceIn">
+                <Feather name="check-circle" color="green" size={20} />
+              </Animatable.View>
+            ) : null}
+          </View>
+
+          <Text
+            style={[
+              styles.text_footer,
+              {
+                marginTop: 25,
               },
             ]}
           >
@@ -124,7 +237,7 @@ const Signup = ({ navigation }) => {
             style={[
               styles.text_footer,
               {
-                marginTop: 35,
+                marginTop: 25,
               },
             ]}
           >
@@ -163,7 +276,7 @@ const Signup = ({ navigation }) => {
             </Text>
           </View> */}
           <View style={styles.button}>
-            <TouchableOpacity style={styles.signIn} onPress={() => {}}>
+            {/* <TouchableOpacity style={styles.signIn} onPress={() => {}}>
               <View
                 // colors={["#08d4c4", "#01ab9d"]}
                 style={styles.signIn}
@@ -179,16 +292,23 @@ const Signup = ({ navigation }) => {
                   Sign Up
                 </Text>
               </View>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
 
             <TouchableOpacity
-              onPress={() => navigation.goBack()}
+              onPress={() => {
+                registerHandle(
+                  data.email,
+                  data.password,
+                  data.first_name,
+                  data.last_name
+                );
+              }}
               style={[
                 styles.signIn,
                 {
                   borderColor: "#f7a21a",
                   borderWidth: 1,
-                  marginTop: 15,
+                  // marginTop: 15,
                 },
               ]}
             >

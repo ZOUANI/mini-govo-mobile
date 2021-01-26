@@ -1,35 +1,43 @@
 export const users = [
   {
     id: 1,
+    nom: "Zouani",
+    prenom: "Younes",
     email: "zouani@gmail.com",
     username: "zouani",
-    password: "zouani",
+    password: "zouani123",
     role_id: 1, //Admin
-    userToken: "token123",
+    userToken: "tokendyalzouani",
   },
   {
     id: 2,
+    nom: "Chaachai",
+    prenom: "Youssef",
     email: "chaachai@gmail.com",
     username: "chaachai",
     password: "chaachai",
     role_id: 1, //Client
-    userToken: "token123",
+    userToken: "tokendyalyoussef",
   },
   {
     id: 2,
+    nom: "Chiadmi",
+    prenom: "Hamza",
     email: "chiadmi@gmail.com",
     username: "chiadmi",
-    password: "chiadmi",
+    password: "chiadmi123",
     role_id: 2, //Collaborateur
-    userToken: "token12345",
+    userToken: "tokendyalhamza",
   },
   {
     id: 3,
+    nom: "Benmansour",
+    prenom: "Mohammed",
     email: "benmansour@gmail.com",
     username: "benmansour",
     password: "benmansour",
     role_id: 3, //Livreur
-    userToken: "testtoken",
+    userToken: "tokendyalsimo",
   },
 ];
 
