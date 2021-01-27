@@ -15,25 +15,14 @@ import InputSpinner from "react-native-input-spinner";
 import styles from "./styles";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-// function getProductsByCategory(categoryId) {
-//   const productsArray = [];
-//   products.map((data) => {
-//     if (data.categoryId == categoryId) {
-//       productsArray.push(data);
-//     }
-//   });
-//   return productsArray;
-// }
-
 export default function Panier({ route, navigation }) {
   const [products, setProducts] = useState([]);
   const [quantity, setQuantity] = useState(1);
+  const [totalPanier, setTotalPanier] = useState(0.0);
   const [mToken, setMToken] = useState("");
 
   useEffect(() => {
     const unsubscribe = navigation.addListener("focus", () => {
-      // The screen is focused
-      // Call any action
       console.log("!! useEffect panier !!");
       const getProductsFromStorage = async () => {
         let existingProducts;
@@ -41,12 +30,13 @@ export default function Panier({ route, navigation }) {
         try {
           existingProducts = await AsyncStorage.getItem("products");
           userToken = await AsyncStorage.getItem("userToken");
-          console.log("PRODUCTS == ", existingProducts);
-          console.log("USER TOKEN ==== ", userToken);
+          // console.log("PRODUCTS == ", existingProducts);
+          // console.log("USER TOKEN ==== ", userToken);
           if (existingProducts != null) {
             let mProducts = JSON.parse(existingProducts);
+            updateTotalPanier(mProducts);
             setProducts(mProducts);
-            console.log("State dyal products == ", products);
+            // console.log("State dyal products == ", products);
           }
           if (userToken != null) {
             setMToken(userToken);
@@ -66,11 +56,13 @@ export default function Panier({ route, navigation }) {
     // getProductsFromStorage();
   }, [navigation]);
 
-  // const getProductsFromStorage = () =>{
-  //   const existingProducts = await AsyncStorage.getItem('products')
-  //   console.log("Existing products = ", existingProducts);
-  //   if(existingProducts == null || )
-  // };
+  function updateTotalPanier(productsArray) {
+    let mTotal = 0;
+    productsArray.forEach((element) => {
+      mTotal = mTotal + element.quantity * element.price;
+    });
+    setTotalPanier(mTotal);
+  }
 
   const finaliserCommande = () => {
     console.log("Token dyal hwa == ", mToken);
@@ -98,6 +90,7 @@ export default function Panier({ route, navigation }) {
     if (index !== -1) {
       allItems.splice(index, 1);
       setProducts(allItems);
+      updateTotalPanier(allItems);
       updateProductsInStorage(allItems);
     }
     // allItems
@@ -132,11 +125,12 @@ export default function Panier({ route, navigation }) {
         });
     };
     let mProducts = [...products];
-    console.log("---- old list == ", mProducts);
+    // console.log("---- old list == ", mProducts);
     var objIndex = mProducts.indexOf(item);
     mProducts[objIndex].quantity = num;
-    console.log("---- new list == ", mProducts);
+    // console.log("---- new list == ", mProducts);
     setProducts(mProducts);
+    updateTotalPanier(mProducts);
     updateProductsInStorage(mProducts);
   };
 
@@ -280,7 +274,7 @@ export default function Panier({ route, navigation }) {
                 color: "#d68504",
               }}
             >
-              2 éléments
+              {products.length} éléments
             </Text>
             <Text
               style={{
@@ -290,7 +284,7 @@ export default function Panier({ route, navigation }) {
                 color: "#d68504",
               }}
             >
-              400.00 MAD
+              {totalPanier} MAD
             </Text>
           </View>
         </View>

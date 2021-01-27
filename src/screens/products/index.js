@@ -18,46 +18,27 @@ import Dialog from "react-native-dialog";
 import { API_URL as URL } from "../../utils/constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-// function getProductsByCategory(categoryId) {
-//   const productsArray = [];
-//   products.map((data) => {
-//     if (data.categoryId == categoryId) {
-//       productsArray.push(data);
-//     }
-//   });
-//   return productsArray;
-// }
-
-// function getCategoryName(categoryId) {
-//   let name;
-//   categories.map((data) => {
-//     if (data.id == categoryId) {
-//       name = data.name;
-//     }
-//   });
-//   return name;
-// }
-
-const Toast = ({ visible, message }) => {
-  if (visible) {
-    ToastAndroid.showWithGravityAndOffset(
-      message,
-      ToastAndroid.LONG,
-      ToastAndroid.BOTTOM,
-      25,
-      50
-    );
-    return null;
-  }
-  return null;
-};
+// const Toast = ({ visible, message }) => {
+//   if (visible) {
+//     ToastAndroid.showWithGravityAndOffset(
+//       message,
+//       ToastAndroid.LONG,
+//       ToastAndroid.BOTTOM,
+//       25,
+//       50
+//     );
+//     return null;
+//   }
+//   return null;
+// };
 
 export default function Products({ route, navigation }) {
   const [visible, setVisible] = useState(false);
-  const [visibleToast, setvisibleToast] = useState(false);
+  // const [visibleToast, setvisibleToast] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [selectedItem, setSelectedItem] = useState({});
   const [cartProducts, setCartProducts] = useState([]);
+  const [totalPanier, setTotalPanier] = useState(0.0);
   const { category, label } = route.params;
 
   // const productsArray = getProductsByCategory(category.id);
@@ -65,33 +46,45 @@ export default function Products({ route, navigation }) {
   const [products, setProducts] = React.useState([]);
 
   useEffect(() => {
-    findProductsByCategory(category.id);
+    const unsubscribe = navigation.addListener("focus", () => {
+      console.log("!! useEffect products !!");
 
-    const getProductsFromStorage = async () => {
-      let existingProducts;
-      try {
-        existingProducts = await AsyncStorage.getItem("products");
-        // console.log("PRODUCTS == ", existingProducts);
-        if (existingProducts != null) {
-          let mExistingProducts = JSON.parse(existingProducts);
-          setCartProducts(mExistingProducts);
+      findProductsByCategory(category.id);
+
+      const getProductsFromStorage = async () => {
+        let existingProducts;
+        try {
+          existingProducts = await AsyncStorage.getItem("products");
+          // console.log("PRODUCTS == ", existingProducts);
+          if (existingProducts != null) {
+            let mExistingProducts = JSON.parse(existingProducts);
+            setCartProducts(mExistingProducts);
+            updateTotalPanier(mExistingProducts);
+          }
+        } catch (e) {
+          console.log(e);
         }
-      } catch (e) {
-        console.log(e);
-      }
-    };
+      };
 
-    getProductsFromStorage();
-  }, []);
+      getProductsFromStorage();
+    });
+
+    // Return the function to unsubscribe from the event so it gets removed on unmount
+    return unsubscribe;
+  }, [navigation]);
+
+  function updateTotalPanier(productsArray) {
+    let mTotal = 0;
+    productsArray.forEach((element) => {
+      mTotal = mTotal + element.quantity * element.price;
+    });
+    setTotalPanier(mTotal);
+  }
 
   function findArrayElementById(array, id) {
     let mElement = null;
-    console.log("id == ", id);
-    console.log("array == ", array);
     array.forEach((element) => {
-      console.log("element.id == ", element.id);
       if (element.id == id) {
-        console.log("BINGOO !");
         mElement = element;
       }
     });
@@ -129,17 +122,19 @@ export default function Products({ route, navigation }) {
         let mProducts = [...cartProducts];
         mProducts.push(productToBeSaved);
         setCartProducts(mProducts);
+        updateTotalPanier(mProducts);
         saveNewProduct(mProducts);
       } else {
         console.log("il y a deja un element avec le meme id...");
         //Increment the quantity of the element
         let newQuantity = result.quantity + quantity;
-        console.log("new quantity == ", newQuantity);
+        // console.log("new quantity == ", newQuantity);
         let mProducts = [...cartProducts];
         var objIndex = mProducts.indexOf(result);
         mProducts[objIndex].quantity = newQuantity;
-        console.log("new list == ", mProducts);
+        // console.log("new list == ", mProducts);
         setCartProducts(mProducts);
+        updateTotalPanier(mProducts);
         saveNewProduct(mProducts);
       }
     } else {
@@ -148,6 +143,7 @@ export default function Products({ route, navigation }) {
       let mProducts = [...cartProducts];
       mProducts.push(productToBeSaved);
       setCartProducts(mProducts);
+      updateTotalPanier(mProducts);
       saveNewProduct(mProducts);
     }
 
@@ -160,7 +156,7 @@ export default function Products({ route, navigation }) {
     axios
       .get(URL + "/generated/product/categoryProduit/id/" + categoryId)
       .then((response) => {
-        console.log("Products Array == ", response.data);
+        // console.log("Products Array == ", response.data);
         setProducts(response.data);
       })
       .catch((error) => {
@@ -250,7 +246,7 @@ export default function Products({ route, navigation }) {
               color: "#d68504",
             }}
           >
-            400.00 MAD
+            {totalPanier} MAD
           </Text>
           <Text
             style={{
@@ -259,7 +255,7 @@ export default function Products({ route, navigation }) {
               color: "#d68504",
             }}
           >
-            (2 éléments)
+            ({cartProducts.length} éléments)
           </Text>
         </View>
         {/* </View> */}
