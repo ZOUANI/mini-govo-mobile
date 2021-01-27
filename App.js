@@ -80,9 +80,10 @@ export default function App() {
       signIn: async (foundUser) => {
         const userToken = String(foundUser.userToken);
         const email = foundUser.email;
-
+        const mUser = foundUser;
         try {
           await AsyncStorage.setItem("userToken", userToken);
+          await AsyncStorage.setItem("connectedUser", JSON.stringify(mUser));
         } catch (e) {
           console.log(e);
         }
@@ -91,6 +92,8 @@ export default function App() {
       signOut: async () => {
         try {
           await AsyncStorage.removeItem("userToken");
+          await AsyncStorage.removeItem("connectedUser");
+          await AsyncStorage.removeItem("products");
         } catch (e) {
           console.log(e);
         }
@@ -99,8 +102,10 @@ export default function App() {
       signUp: async (foundUser) => {
         const userToken = String(foundUser.userToken);
         const email = foundUser.email;
+        const mUser = foundUser;
         try {
           await AsyncStorage.setItem("userToken", userToken);
+          await AsyncStorage.setItem("connectedUser", JSON.stringify(mUser));
         } catch (e) {
           console.log(e);
         }

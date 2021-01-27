@@ -8,12 +8,28 @@ import {
 } from "react-native";
 import { commandes } from "../../data/dataArrays";
 import styles from "./styles";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Commande({ navigation }) {
   const [Commandes, setCommandes] = useState([]);
+  const [user, setUser] = useState({});
 
   useEffect(() => {
     setCommandes(commandes);
+    const getConnectedUser = async () => {
+      let connectedUser;
+      try {
+        connectedUser = await AsyncStorage.getItem("connectedUser");
+        if (connectedUser != null) {
+          let mUser = JSON.parse(connectedUser);
+          setUser(mUser);
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    };
+
+    getConnectedUser();
   }, []);
 
   onPressCommande = (item) => {
