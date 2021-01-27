@@ -39,6 +39,7 @@ export default function Products({ route, navigation }) {
   const [selectedItem, setSelectedItem] = useState({});
   const [cartProducts, setCartProducts] = useState([]);
   const [totalPanier, setTotalPanier] = useState(0.0);
+  const [totalSelectedProduct, setTotalSelectedProduct] = useState(0.0);
   const { category, label } = route.params;
 
   // const productsArray = getProductsByCategory(category.id);
@@ -150,6 +151,8 @@ export default function Products({ route, navigation }) {
     // setvisibleToast(true);
     setVisible(false);
     setQuantity(1);
+    setTotalSelectedProduct(0);
+    setSelectedItem({});
   };
 
   const findProductsByCategory = (categoryId) => {
@@ -174,6 +177,7 @@ export default function Products({ route, navigation }) {
     console.log("Clicked product card " + item.label);
     setVisible(true);
     setSelectedItem(item);
+    setTotalSelectedProduct(item.price * quantity);
   };
 
   onPressGoToCart = () => {
@@ -191,7 +195,8 @@ export default function Products({ route, navigation }) {
           <Text style={styles.title}>{item.label}</Text>
           <Text style={styles.category}>
             {/* {getCategoryName(item.categoryProduitVo.id)} */}
-            {item.categoryProduitVo.label}
+            {/* {item.categoryProduitVo.label} */}
+            {item.price} MAD
           </Text>
         </View>
       </View>
@@ -279,6 +284,9 @@ export default function Products({ route, navigation }) {
             visible={visible}
             onBackdropPress={() => {
               setVisible(false);
+              setTotalSelectedProduct(0);
+              setQuantity(1);
+              setSelectedItem({});
             }}
           >
             <Dialog.Title style={{ alignSelf: "center", marginBottom: 10 }}>
@@ -306,16 +314,23 @@ export default function Products({ route, navigation }) {
                 color={"#f7a21a"}
                 value={quantity}
                 onChange={(num) => {
+                  setTotalSelectedProduct(num * selectedItem.price);
                   setQuantity(num);
                   console.log(num);
                 }}
               />
-              <Text style={{ marginBottom: 25 }}>Unité</Text>
+              <Text style={{ marginBottom: 10 }}>Unité</Text>
+              <Text style={{ marginBottom: 15 }}>
+                {totalSelectedProduct} MAD
+              </Text>
             </View>
             <Dialog.Button
               label="Annuler"
               onPress={() => {
                 setVisible(false);
+                setTotalSelectedProduct(0);
+                setQuantity(1);
+                setSelectedItem({});
               }}
             />
             <Dialog.Button
