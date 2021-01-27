@@ -6,33 +6,138 @@ import {
   TouchableHighlight,
   TouchableOpacity,
   Image,
+  Alert,
 } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
 import InputSpinner from "react-native-input-spinner";
 // import styles from "../../styles/styles";
-import { products, categories } from "../../data/dataArrays";
+// import { products, categories } from "../../data/dataArrays";
 import styles from "./styles";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-function getProductsByCategory(categoryId) {
-  const productsArray = [];
-  products.map((data) => {
-    if (data.categoryId == categoryId) {
-      productsArray.push(data);
-    }
-  });
-  return productsArray;
-}
+// function getProductsByCategory(categoryId) {
+//   const productsArray = [];
+//   products.map((data) => {
+//     if (data.categoryId == categoryId) {
+//       productsArray.push(data);
+//     }
+//   });
+//   return productsArray;
+// }
 
 export default function Panier({ route, navigation }) {
   const [products, setProducts] = useState([]);
   const [quantity, setQuantity] = useState(1);
+  const [mToken, setMToken] = useState("");
 
   useEffect(() => {
-    setProducts(getProductsByCategory(5));
-  }, []);
+    const unsubscribe = navigation.addListener("focus", () => {
+      // The screen is focused
+      // Call any action
+      console.log("!! useEffect panier !!");
+      const getProductsFromStorage = async () => {
+        let existingProducts;
+        let userToken;
+        try {
+          existingProducts = await AsyncStorage.getItem("products");
+          userToken = await AsyncStorage.getItem("userToken");
+          console.log("PRODUCTS == ", existingProducts);
+          console.log("USER TOKEN ==== ", userToken);
+          if (existingProducts != null) {
+            let mProducts = JSON.parse(existingProducts);
+            setProducts(mProducts);
+            console.log("State dyal products == ", products);
+          }
+          if (userToken != null) {
+            setMToken(userToken);
+          } else {
+            setMToken("");
+          }
+        } catch (e) {
+          console.log(e);
+        }
+      };
+      getProductsFromStorage();
+    });
 
-  onPressGoToRegister = () => {
-    console.log("Token dyal panier hwa == ", mToken);
+    // Return the function to unsubscribe from the event so it gets removed on unmount
+    return unsubscribe;
+    // setProducts(getProductsByCategory(5));
+    // getProductsFromStorage();
+  }, [navigation]);
+
+  // const getProductsFromStorage = () =>{
+  //   const existingProducts = await AsyncStorage.getItem('products')
+  //   console.log("Existing products = ", existingProducts);
+  //   if(existingProducts == null || )
+  // };
+
+  const finaliserCommande = () => {
+    console.log("Token dyal hwa == ", mToken);
+    if (mToken.length == 0 || mToken == null) {
+      navigation.navigate("Auth", { screen: "Login" });
+    } else {
+      //COMING SOON...
+    }
+  };
+
+  const removeProduct = (item) => {
+    const updateProductsInStorage = async (array) => {
+      await AsyncStorage.setItem("products", JSON.stringify(array))
+        .then(() => {
+          console.log("Updated successfully");
+        })
+        .catch(() => {
+          console.log("There was an error updating the products");
+        });
+    };
+    // console.log("you want to remove ", item.label);
+    var index = products.indexOf(item);
+    // console.log("INDEX == ", index);
+    let allItems = [...products];
+    if (index !== -1) {
+      allItems.splice(index, 1);
+      setProducts(allItems);
+      updateProductsInStorage(allItems);
+    }
+    // allItems
     // navigation.navigate("Register");
+  };
+
+  const removeHandle = (item) => {
+    Alert.alert(
+      "",
+      "Êtes-vous sûr de vouloir supprimer ce produit ?",
+      [
+        {
+          text: "Annuler",
+          onPress: () => console.log("Cancel"),
+          style: "cancel",
+        },
+        { text: "Oui", onPress: () => removeProduct(item) },
+      ],
+      { cancelable: false }
+    );
+  };
+
+  const updateQuantity = (num, item) => {
+    console.log("affect ", num, " to ", item.label);
+    const updateProductsInStorage = async (xProducts) => {
+      await AsyncStorage.setItem("products", JSON.stringify(xProducts))
+        .then(() => {
+          console.log("It was saved successfully");
+        })
+        .catch(() => {
+          console.log("There was an error saving the new product");
+        });
+    };
+    let mProducts = [...products];
+    console.log("---- old list == ", mProducts);
+    var objIndex = mProducts.indexOf(item);
+    mProducts[objIndex].quantity = num;
+    console.log("---- new list == ", mProducts);
+    setProducts(mProducts);
+    updateProductsInStorage(mProducts);
   };
 
   renderProducts = ({ item }) => (
@@ -42,7 +147,7 @@ export default function Panier({ route, navigation }) {
     >
       <View style={styles.superContainer}>
         <View style={styles.container}>
-          <Image style={styles.photo} source={{ uri: item.photo_url }} />
+          <Image style={styles.photo} source={{ uri: item.imagePath }} />
           <View
             style={{
               flex: 2,
@@ -56,9 +161,9 @@ export default function Panier({ route, navigation }) {
                 // backgroundColor: "#2863EE",
               }}
             >
-              <Text style={styles.title}>{item.title}</Text>
+              <Text style={styles.title}>{item.label}</Text>
               <Text style={{ flex: 1, fontSize: 14, color: "#d68504" }}>
-                200 MAD
+                {item.price} MAD
               </Text>
             </View>
             <View
@@ -70,32 +175,61 @@ export default function Panier({ route, navigation }) {
                 // backgroundColor: "#465464",
               }}
             >
-              <Text
+              <View
                 style={{
-                  fontSize: 12,
-                  marginBottom: 7,
-                  marginLeft: 7,
+                  flex: 1,
+                  justifyContent: "flex-end",
+                  alignItems: "flex-end",
                 }}
               >
-                <InputSpinner
-                  width={90}
-                  height={35}
-                  max={20}
-                  min={1}
-                  buttonFontSize={18}
-                  fontSize={11}
-                  // background={"#eaeaea"}
-                  step={1}
-                  color={"#f7a21a"}
-                  value={quantity}
-                  rounded={false}
-                  showBorder
-                  onChange={(num) => {
-                    setQuantity(num);
-                    console.log(num);
+                <TouchableOpacity
+                  onPress={() => {
+                    removeHandle(item);
                   }}
-                />
-              </Text>
+                  style={{
+                    marginBottom: 10,
+                    marginLeft: 10,
+                    width: 32,
+                  }}
+                >
+                  <MaterialIcons name="delete" size={30} color="#f7a21a" />
+                </TouchableOpacity>
+              </View>
+              <View
+                style={{
+                  flex: 1,
+                  justifyContent: "flex-end",
+                  // backgroundColor: "#654656",
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 12,
+                    marginBottom: 7,
+                    marginLeft: 7,
+                  }}
+                >
+                  <InputSpinner
+                    width={90}
+                    height={35}
+                    max={20}
+                    min={1}
+                    buttonFontSize={18}
+                    fontSize={11}
+                    // background={"#eaeaea"}
+                    step={1}
+                    color={"#f7a21a"}
+                    value={item.quantity}
+                    rounded={false}
+                    showBorder
+                    onChange={(num) => {
+                      updateQuantity(num, item);
+                      // setQuantity(num);
+                      // console.log(num);
+                    }}
+                  />
+                </Text>
+              </View>
             </View>
           </View>
           {/* <Text style={styles.category}>
@@ -118,7 +252,7 @@ export default function Panier({ route, navigation }) {
         numColumns={1}
         data={products}
         renderItem={renderProducts}
-        keyExtractor={(item) => `${item.productId}`}
+        keyExtractor={(item) => `${item.id}`}
       />
       {/* </ScrollView> */}
       <View
@@ -161,7 +295,9 @@ export default function Panier({ route, navigation }) {
           </View>
         </View>
         <TouchableOpacity
-          onPress={onPressGoToRegister}
+          onPress={() => {
+            finaliserCommande();
+          }}
           style={styles.appButtonContainer}
         >
           <Text style={styles.appButtonText}>Finaliser la commande</Text>

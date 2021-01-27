@@ -29,7 +29,7 @@ const commandCard = StyleSheet.create({
   },
 
   referenceField: {
-    fontFamily: "nunito-bold",
+    //fontFamily: "nunito-bold",
     color: "#808080",
     fontSize: 13,
     marginTop: 3,
@@ -37,7 +37,7 @@ const commandCard = StyleSheet.create({
     marginLeft: 5,
   },
   referenceValue: {
-    fontFamily: "nunito-bold",
+    //fontFamily: "nunito-bold",
     fontSize: 13,
 
     marginTop: 3,
@@ -45,7 +45,7 @@ const commandCard = StyleSheet.create({
     marginLeft: 5,
   },
   dateField: {
-    fontFamily: "nunito-bold",
+    //fontFamily: "nunito-bold",
     fontSize: 13,
 
     color: "#808080",
@@ -54,14 +54,14 @@ const commandCard = StyleSheet.create({
     marginLeft: 5,
   },
   dateValue: {
-    fontFamily: "nunito-bold",
+    //fontFamily: "nunito-bold",
     fontSize: 13,
     marginTop: 3,
     marginRight: 5,
     marginLeft: 5,
   },
   statusField: {
-    fontFamily: "nunito-bold",
+    //fontFamily: "nunito-bold",
     fontSize: 13,
 
     color: "#808080",
@@ -70,7 +70,7 @@ const commandCard = StyleSheet.create({
     marginLeft: 5,
   },
   statusValue: {
-    fontFamily: "nunito-bold",
+    //fontFamily: "nunito-bold",
     color: "#F3710B",
     fontSize: 13,
     marginTop: 3,
@@ -87,27 +87,27 @@ const commandCard = StyleSheet.create({
     justifyContent: "flex-start",
   },
   totalField: {
-    fontFamily: "nunito-bold",
+    //fontFamily: "nunito-bold",
     color: "#808080",
     fontSize: 13,
     marginTop: 3,
     marginLeft: "19%",
   },
   produitsField: {
-    fontFamily: "nunito-bold",
+    //fontFamily: "nunito-bold",
     color: "#808080",
     fontSize: 13,
     marginTop: 3,
     marginLeft: 5,
   },
   totalValue: {
-    fontFamily: "nunito-bold",
+    //fontFamily: "nunito-bold",
     fontSize: 13,
     marginTop: 3,
     marginLeft: "36%",
   },
   produitsValue: {
-    fontFamily: "nunito-bold",
+    //fontFamily: "nunito-bold",
     fontSize: 13,
     marginTop: 3,
     marginLeft: 5,
@@ -118,14 +118,14 @@ const commandCard = StyleSheet.create({
     justifyContent: "flex-end",
   },
   dateLivraisonMessage: {
-    fontFamily: "nunito-bold",
+    //fontFamily: "nunito-bold",
     color: "#808080",
     fontSize: 14,
     marginTop: 3,
     marginLeft: 5,
   },
   DateLivraisonValue: {
-    fontFamily: "nunito-bold",
+    //fontFamily: "nunito-bold",
     color: "#000",
   },
 });
@@ -150,7 +150,7 @@ const commandDetails = StyleSheet.create({
   },
   produitTitre: {
     flex: 1,
-    fontFamily: "nunito-bold",
+    //fontFamily: "nunito-bold",
     fontSize: 14,
     fontWeight: "bold",
     textAlign: "left",
@@ -161,7 +161,7 @@ const commandDetails = StyleSheet.create({
   },
   produitQuantite: {
     flex: 1,
-    fontFamily: "nunito-bold",
+    //fontFamily: "nunito-bold",
     fontSize: 14,
     fontWeight: "bold",
     textAlign: "left",
@@ -172,7 +172,7 @@ const commandDetails = StyleSheet.create({
   },
   produitPrix: {
     flex: 1,
-    fontFamily: "nunito-bold",
+    //fontFamily: "nunito-bold",
     fontSize: 14,
     fontWeight: "bold",
     textAlign: "left",
@@ -205,7 +205,7 @@ const commandSuivie = StyleSheet.create({
     justifyContent: "space-around",
   },
   SuivieReferenceField: {
-    fontFamily: "nunito-bold",
+    //fontFamily: "nunito-bold",
     color: "#808080",
     fontSize: 13,
     marginTop: 3,
@@ -213,7 +213,7 @@ const commandSuivie = StyleSheet.create({
     marginLeft: 5,
   },
   SuivieReferenceValue: {
-    fontFamily: "nunito-bold",
+    //fontFamily: "nunito-bold",
     color: "#000",
     fontSize: 13,
     marginTop: 3,

@@ -159,6 +159,7 @@ export function DrawerContent(props) {
             label="Logout"
             onPress={() => {
               signOut();
+              props.navigation.navigate("Home", { screen: "Home" });
             }}
           />
         </Drawer.Section>

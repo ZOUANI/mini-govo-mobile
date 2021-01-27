@@ -16,6 +16,7 @@ import {
 } from "react-native";
 import Dialog from "react-native-dialog";
 import { API_URL as URL } from "../../utils/constants";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // function getProductsByCategory(categoryId) {
 //   const productsArray = [];
@@ -56,6 +57,7 @@ export default function Products({ route, navigation }) {
   const [visibleToast, setvisibleToast] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [selectedItem, setSelectedItem] = useState({});
+  const [cartProducts, setCartProducts] = useState([]);
   const { category, label } = route.params;
 
   // const productsArray = getProductsByCategory(category.id);
@@ -64,7 +66,95 @@ export default function Products({ route, navigation }) {
 
   useEffect(() => {
     findProductsByCategory(category.id);
+
+    const getProductsFromStorage = async () => {
+      let existingProducts;
+      try {
+        existingProducts = await AsyncStorage.getItem("products");
+        // console.log("PRODUCTS == ", existingProducts);
+        if (existingProducts != null) {
+          let mExistingProducts = JSON.parse(existingProducts);
+          setCartProducts(mExistingProducts);
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    };
+
+    getProductsFromStorage();
   }, []);
+
+  function findArrayElementById(array, id) {
+    let mElement = null;
+    console.log("id == ", id);
+    console.log("array == ", array);
+    array.forEach((element) => {
+      console.log("element.id == ", element.id);
+      if (element.id == id) {
+        console.log("BINGOO !");
+        mElement = element;
+      }
+    });
+    return mElement;
+  }
+
+  const addToPanier = () => {
+    console.log("************* AJOUTER AU PANIER TRIGGERED *************");
+    const productToBeSaved = {
+      id: selectedItem.id,
+      reference: selectedItem.reference,
+      label: selectedItem.label,
+      price: selectedItem.price,
+      categoryId: selectedItem.categoryProduitVo.id,
+      imagePath: selectedItem.imagePath,
+      quantity: quantity,
+    };
+    const saveNewProduct = async (xProducts) => {
+      await AsyncStorage.setItem("products", JSON.stringify(xProducts))
+        .then(() => {
+          console.log("It was saved successfully");
+        })
+        .catch(() => {
+          console.log("There was an error saving the new product");
+        });
+    };
+    if (cartProducts.length != 0) {
+      console.log("Panier contient des produits.... ");
+      //Check if the same selected product already exists in the cart :
+      var result = findArrayElementById(cartProducts, selectedItem.id);
+      console.log("RESULT == ", result);
+      if (result == null) {
+        console.log("il n existe pas d element avec le meme id...");
+        //Save the new element in the cart
+        let mProducts = [...cartProducts];
+        mProducts.push(productToBeSaved);
+        setCartProducts(mProducts);
+        saveNewProduct(mProducts);
+      } else {
+        console.log("il y a deja un element avec le meme id...");
+        //Increment the quantity of the element
+        let newQuantity = result.quantity + quantity;
+        console.log("new quantity == ", newQuantity);
+        let mProducts = [...cartProducts];
+        var objIndex = mProducts.indexOf(result);
+        mProducts[objIndex].quantity = newQuantity;
+        console.log("new list == ", mProducts);
+        setCartProducts(mProducts);
+        saveNewProduct(mProducts);
+      }
+    } else {
+      console.log("Panier vide.... ");
+      //Save the new element in the cart
+      let mProducts = [...cartProducts];
+      mProducts.push(productToBeSaved);
+      setCartProducts(mProducts);
+      saveNewProduct(mProducts);
+    }
+
+    // setvisibleToast(true);
+    setVisible(false);
+    setQuantity(1);
+  };
 
   const findProductsByCategory = (categoryId) => {
     axios
@@ -114,7 +204,7 @@ export default function Products({ route, navigation }) {
 
   return (
     <View style={{ flex: 1 }}>
-      <Toast
+      {/* <Toast
         visible={visibleToast}
         message={
           "Vous avez ajouté " +
@@ -123,7 +213,7 @@ export default function Products({ route, navigation }) {
           selectedItem.label +
           " a votre panier "
         }
-      />
+      /> */}
       <FlatList
         vertical
         showsVerticalScrollIndicator={false}
@@ -235,8 +325,7 @@ export default function Products({ route, navigation }) {
             <Dialog.Button
               label="Ajouter au panier"
               onPress={() => {
-                setvisibleToast(true);
-                setVisible(false);
+                addToPanier();
               }}
             />
           </Dialog.Container>
