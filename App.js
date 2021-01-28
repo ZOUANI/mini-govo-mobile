@@ -90,10 +90,11 @@ export default function App() {
         dispatch({ type: "LOGIN", id: email, token: userToken });
       },
       signOut: async () => {
+        const emptyProducts = [];
         try {
           await AsyncStorage.removeItem("userToken");
           await AsyncStorage.removeItem("connectedUser");
-          await AsyncStorage.removeItem("products");
+          await AsyncStorage.setItem("products", JSON.stringify(emptyProducts));
         } catch (e) {
           console.log(e);
         }

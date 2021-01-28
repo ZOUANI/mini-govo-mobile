@@ -65,11 +65,18 @@ export default function Panier({ route, navigation }) {
   }
 
   const finaliserCommande = () => {
-    console.log("Token dyal hwa == ", mToken);
+    // console.log("Token dyal hwa == ", mToken);
     if (mToken.length == 0 || mToken == null) {
       navigation.navigate("Auth", { screen: "Login" });
+    } else if (products.length == 0) {
+      Alert.alert(
+        "",
+        "Votre panier est vide !",
+        [{ text: "OK", onPress: () => console.log("OK") }],
+        { cancelable: false }
+      );
     } else {
-      //COMING SOON...
+      navigation.navigate("SubmitOrder", { totalPanier, products });
     }
   };
 

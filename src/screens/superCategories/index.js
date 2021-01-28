@@ -24,7 +24,7 @@ export default function SuperCategories({ navigation }) {
     axios
       .get(URL + "/generated/categoryProduit/")
       .then((response) => {
-        console.log("Categories Array == ", response.data);
+        // console.log("Categories Array == ", response.data);
         setCategories(response.data);
         // if (response.data.token == null || response.data.token.length == 0) {
         //   Alert.alert(
