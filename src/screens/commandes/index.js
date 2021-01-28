@@ -5,31 +5,56 @@ import {
   View,
   TouchableHighlight,
   TouchableOpacity,
+  Alert,
 } from "react-native";
-import { commandes } from "../../data/dataArrays";
 import styles from "./styles";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
+import { API_URL as URL } from "../../utils/constants";
 
 export default function Commande({ navigation }) {
   const [Commandes, setCommandes] = useState([]);
-  const [user, setUser] = useState({});
+
+  async function countOrderLines() {
+    // console.log("in countOrderLines");
+    const response = await fetch(
+      URL + "/generated/orderLine/countOrderLinesByCommand/id/1"
+    );
+    return await response.json();
+  }
+  const findCommandsByClient = async () => {
+    let connectedUser;
+    let mUser;
+    try {
+      connectedUser = await AsyncStorage.getItem("connectedUser");
+      if (connectedUser != null) {
+        mUser = JSON.parse(connectedUser);
+        // console.log("user == ", mUser);
+      }
+    } catch (e) {
+      console.log(e);
+    }
+
+    axios
+      .get(URL + "/generated/command/client/id/" + mUser.id, {
+        // headers: { Authorization: `Bearer ${mUser.userToken}` },
+      })
+      .then((response) => {
+        setCommandes(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+        Alert.alert(
+          "Echec de la connexion !",
+          "Il y a un problème au niveau du serveur !",
+          [{ text: "OK" }]
+        );
+        return;
+      });
+  };
 
   useEffect(() => {
-    setCommandes(commandes);
-    const getConnectedUser = async () => {
-      let connectedUser;
-      try {
-        connectedUser = await AsyncStorage.getItem("connectedUser");
-        if (connectedUser != null) {
-          let mUser = JSON.parse(connectedUser);
-          setUser(mUser);
-        }
-      } catch (e) {
-        console.log(e);
-      }
-    };
-
-    getConnectedUser();
+    findCommandsByClient();
   }, []);
 
   onPressCommande = (item) => {
@@ -52,7 +77,7 @@ export default function Commande({ navigation }) {
         </View>
         <View style={styles.fielsContainer1}>
           <Text style={styles.referenceValue}>{item.reference}</Text>
-          <Text style={styles.dateValue}>{item.orderDate}</Text>
+          <Text style={styles.dateValue}>{item.orderDate.split(" ")[0]}</Text>
           <Text style={styles.statusValue}>En cours</Text>
         </View>
         <View style={styles.fielsContainer2}>
@@ -60,13 +85,15 @@ export default function Commande({ navigation }) {
           <Text style={styles.totalField}>TOTAL</Text>
         </View>
         <View style={styles.fielsContainer3}>
-          <Text style={styles.produitsValue}>{item.nbrProduits}</Text>
+          <Text style={styles.produitsValue}>2</Text>
           <Text style={styles.totalValue}>{item.total}</Text>
         </View>
         <View style={styles.fielsContainer4}>
           <Text style={styles.dateLivraisonMessage}>
             Cette commande sera livrée le{" "}
-            <Text style={styles.DateLivraisonValue}>{item.orderDate}</Text>
+            <Text style={styles.DateLivraisonValue}>
+              {item.dateSubmission.split(" ")[0]}
+            </Text>
           </Text>
         </View>
         {/* <View style={styles.fielsContainer4}> */}
@@ -76,7 +103,7 @@ export default function Commande({ navigation }) {
           style={styles.appButtonContainer}
         >
           <Text style={{ fontSize: 14, color: "#fff" }}>
-            Suivre votre commande
+            Suiver cette commande
           </Text>
         </TouchableOpacity>
         {/* </View> */}
@@ -92,7 +119,7 @@ export default function Commande({ navigation }) {
         vertical
         showsVerticalScrollIndicator={false}
         numColumns={1}
-        data={commandes}
+        data={Commandes}
         renderItem={renderCommandes}
         keyExtractor={(item) => `${item.id}`}
       />
