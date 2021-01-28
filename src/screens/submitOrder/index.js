@@ -186,6 +186,7 @@ export default function SubmitOrder({ route, navigation }) {
           <Text>Téléphone :</Text>
           <TextInput
             placeholder="Votre numéro de téléphone personnel"
+            keyboardType="phone-pad"
             placeholderTextColor="#666666"
             style={styles.textInput}
             autoCapitalize="none"
