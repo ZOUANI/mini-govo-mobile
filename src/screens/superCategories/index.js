@@ -26,31 +26,6 @@ export default function SuperCategories({ navigation }) {
       .then((response) => {
         // console.log("Categories Array == ", response.data);
         setCategories(response.data);
-        // if (response.data.token == null || response.data.token.length == 0) {
-        //   Alert.alert(
-        //     "Echec de la connexion !",
-        //     "L'email ou le mot de passe est incorrect !",
-        //     [{ text: "OK" }]
-        //   );
-        //   return;
-        // }
-
-        // const foundUser = {
-        //   id: response.data.userVo.id,
-        //   nom: response.data.userVo.lastName,
-        //   prenom: response.data.userVo.firstName,
-        //   email: response.data.userVo.email,
-        //   code: response.data.userVo.code,
-        //   password: response.data.userVo.password,
-        //   role_id: response.data.userVo.roleVo.id,
-        //   userToken: response.data.token,
-        // };
-
-        // console.log("Welcome", foundUser.prenom, foundUser.nom);
-        // signIn(foundUser);
-        // setTimeout(() => {
-        //   // console.log("TIME OUT !!");
-        // }, 2000);
       })
       .catch((error) => {
         console.log(error);
@@ -86,11 +61,26 @@ export default function SuperCategories({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <FlatList
-        data={categories}
-        renderItem={renderCategory}
-        keyExtractor={(item) => `${item.id}`}
-      />
+      {categories.length == 0 ? (
+        <View
+          style={{
+            flex: 1,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Image
+            style={{ width: 125, height: 125 }}
+            source={require("../../assets/images/waiting.png")}
+          />
+        </View>
+      ) : (
+        <FlatList
+          data={categories}
+          renderItem={renderCategory}
+          keyExtractor={(item) => `${item.id}`}
+        />
+      )}
     </View>
   );
 }

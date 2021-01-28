@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Image,
   Alert,
+  ScrollView,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import InputSpinner from "react-native-input-spinner";
@@ -246,15 +247,30 @@ export default function Panier({ route, navigation }) {
     <View style={{ flex: 1 }}>
       {/* <Text>THIS IS THE PANIER SCREEN, WELCOME !</Text> */}
       {/* <ScrollView> */}
+      {products.length == 0 ? (
+        <View
+          style={{
+            flex: 1,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Image
+            style={{ width: "100%", height: 260 }}
+            source={require("../../assets/images/cartempty.png")}
+          />
+        </View>
+      ) : (
+        <FlatList
+          vertical
+          showsVerticalScrollIndicator={false}
+          numColumns={1}
+          data={products}
+          renderItem={renderProducts}
+          keyExtractor={(item) => `${item.id}`}
+        />
+      )}
 
-      <FlatList
-        vertical
-        showsVerticalScrollIndicator={false}
-        numColumns={1}
-        data={products}
-        renderItem={renderProducts}
-        keyExtractor={(item) => `${item.id}`}
-      />
       {/* </ScrollView> */}
       <View
         style={{

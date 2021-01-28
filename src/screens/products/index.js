@@ -215,14 +215,30 @@ export default function Products({ route, navigation }) {
           " a votre panier "
         }
       /> */}
-      <FlatList
-        vertical
-        showsVerticalScrollIndicator={false}
-        numColumns={2}
-        data={products}
-        renderItem={renderProducts}
-        keyExtractor={(item) => `${item.id}`}
-      />
+
+      {products.length == 0 ? (
+        <View
+          style={{
+            flex: 1,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Image
+            style={{ width: 125, height: 125 }}
+            source={require("../../assets/images/waiting.png")}
+          />
+        </View>
+      ) : (
+        <FlatList
+          vertical
+          showsVerticalScrollIndicator={false}
+          numColumns={2}
+          data={products}
+          renderItem={renderProducts}
+          keyExtractor={(item) => `${item.id}`}
+        />
+      )}
 
       <View
         style={{
