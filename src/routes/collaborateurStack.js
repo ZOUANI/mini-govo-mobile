@@ -33,7 +33,7 @@ function TasksTabs() {
 export default function CollaborateurStack() {
   return (
     <Stack.Navigator
-      initialRouteName="Home"
+      initialRouteName="AffectedTasks"
       screenOptions={{
         headerStyle: {
           backgroundColor: "#f7a21a",

@@ -19,12 +19,12 @@ export default function SuperCategories({ navigation }) {
   const [timedOut, setTimedOut] = React.useState(false);
 
   useEffect(() => {
-    const unsubscribe = navigation.addListener("focus", () => {
-      console.log("!! useEffect categories !!");
-      findAllCategories();
-    });
-    return unsubscribe;
-  }, [navigation]);
+    // const unsubscribe = navigation.addListener("focus", () => {
+    console.log("!! useEffect categories !!");
+    findAllCategories();
+    // });
+    // return unsubscribe;
+  }, []);
 
   const findAllCategories = () => {
     setTimedOut(false);

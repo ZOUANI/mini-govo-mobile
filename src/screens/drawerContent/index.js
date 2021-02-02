@@ -24,7 +24,7 @@ export function DrawerContent(props) {
   const paperTheme = useTheme();
 
   React.useEffect(() => {
-    console.log("mState from drawer content == ", props.mState);
+    // console.log("mState from drawer content == ", props.mState);
   }, [props.mState]);
 
   const { signOut } = React.useContext(AuthContext);
@@ -55,43 +55,33 @@ export function DrawerContent(props) {
                 <Caption style={styles.caption}>@govo_ma</Caption>
               </View>
             </View>
-
-            {/* <View style={styles.row}>
-              <View style={styles.section}>
-                <Paragraph style={[styles.paragraph, styles.caption]}>
-                  80
-                </Paragraph>
-                <Caption style={styles.caption}>Following</Caption>
-              </View>
-              <View style={styles.section}>
-                <Paragraph style={[styles.paragraph, styles.caption]}>
-                  100
-                </Paragraph>
-                <Caption style={styles.caption}>Followers</Caption>
-              </View>
-            </View> */}
           </View>
 
           <Drawer.Section style={styles.drawerSection}>
-            <DrawerItem
-              icon={({ color, size }) => (
-                <Icon name="home-outline" color={color} size={size} />
-              )}
-              label="Accueil"
-              onPress={() => {
-                props.navigation.navigate("Home", { screen: "Home" });
-              }}
-            />
-            <DrawerItem
-              icon={({ color, size }) => (
-                <Icon name="cart-outline" color={color} size={size} />
-              )}
-              label="Mon panier"
-              onPress={() => {
-                props.navigation.navigate("Panier");
-              }}
-            />
-            {props.mState.userToken !== null && (
+            {props.mState.role_id != 3 && (
+              <View>
+                <DrawerItem
+                  icon={({ color, size }) => (
+                    <Icon name="home-outline" color={color} size={size} />
+                  )}
+                  label="Accueil"
+                  onPress={() => {
+                    props.navigation.navigate("Home", { screen: "Home" });
+                  }}
+                />
+                <DrawerItem
+                  icon={({ color, size }) => (
+                    <Icon name="cart-outline" color={color} size={size} />
+                  )}
+                  label="Mon panier"
+                  onPress={() => {
+                    props.navigation.navigate("Panier");
+                  }}
+                />
+              </View>
+            )}
+
+            {props.mState.userToken !== null && props.mState.role_id == 2 && (
               <DrawerItem
                 icon={({ color, size }) => (
                   <Icon name="script-text-outline" color={color} size={size} />
@@ -132,7 +122,7 @@ export function DrawerContent(props) {
               </View>
             )}
           </Drawer.Section>
-          {props.mState.userToken !== null && (
+          {props.mState.userToken !== null && props.mState.role_id == 3 && (
             <Drawer.Section style={styles.drawerSection}>
               <DrawerItem
                 icon={({ color, size }) => (
@@ -142,7 +132,7 @@ export function DrawerContent(props) {
                     size={size}
                   />
                 )}
-                label="Tâches (Collab.)"
+                label="Mes tâches"
                 onPress={() => {
                   props.navigation.navigate("Tasks", {
                     screen: "AffectedTasks",
@@ -165,8 +155,9 @@ export function DrawerContent(props) {
               setTimeout(() => {
                 setLoading(false);
                 signOut();
-                props.navigation.navigate("Home", { screen: "Home" });
               }, 1000);
+              props.navigation.closeDrawer();
+              // props.navigation.navigate("Home", { screen: "Home" });
             }}
           />
         </Drawer.Section>

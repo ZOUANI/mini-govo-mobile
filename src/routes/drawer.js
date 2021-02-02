@@ -14,40 +14,54 @@ export default function Navigator(props) {
   const [mState, setMState] = React.useState({});
 
   React.useEffect(() => {
-    console.log("LOGGED IN == ", props.loginState);
+    console.log("============== LOGIN STATE ==============");
+    console.log(props.loginState);
+    console.log("=========================================");
     setMState(props.loginState);
   }, [props.loginState]);
 
   return (
     <NavigationContainer>
       {props.loginState.userToken !== null ? (
-        <Drawer.Navigator
-          drawerContent={(props) => (
-            <DrawerContent {...props} mState={mState} />
+        <React.Fragment>
+          {props.loginState.role_id != 3 ? (
+            <Drawer.Navigator
+              drawerContent={(props) => (
+                <DrawerContent {...props} mState={mState} />
+              )}
+              initialRouteName="Home"
+            >
+              <Drawer.Screen
+                name="Home"
+                options={{ title: "Catégories" }}
+                component={HomeStack}
+              />
+              <Drawer.Screen
+                name="Panier"
+                options={{ title: "Mon panier" }}
+                component={PanierStack}
+              />
+              <Drawer.Screen
+                name="MesCommandes"
+                options={{ title: "Mes commandes" }}
+                component={CommandeStack}
+              />
+            </Drawer.Navigator>
+          ) : (
+            <Drawer.Navigator
+              drawerContent={(props) => (
+                <DrawerContent {...props} mState={mState} />
+              )}
+              initialRouteName="Tasks"
+            >
+              <Drawer.Screen
+                name="Tasks"
+                options={{ title: "Mes tâches" }}
+                component={CollaborateurStack}
+              />
+            </Drawer.Navigator>
           )}
-          initialRouteName="Home"
-        >
-          <Drawer.Screen
-            name="Home"
-            options={{ title: "Catégories" }}
-            component={HomeStack}
-          />
-          <Drawer.Screen
-            name="Panier"
-            options={{ title: "Mon panier" }}
-            component={PanierStack}
-          />
-          <Drawer.Screen
-            name="MesCommandes"
-            options={{ title: "Mes commandes" }}
-            component={CommandeStack}
-          />
-          <Drawer.Screen
-            name="Tasks"
-            options={{ title: "Mes tâches" }}
-            component={CollaborateurStack}
-          />
-        </Drawer.Navigator>
+        </React.Fragment>
       ) : (
         <Drawer.Navigator
           drawerContent={(props) => (
