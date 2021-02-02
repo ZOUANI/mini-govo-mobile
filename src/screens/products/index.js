@@ -14,6 +14,7 @@ import {
   TouchableOpacity,
   Alert,
 } from "react-native";
+import Loader from "../../components/loader";
 import Dialog from "react-native-dialog";
 import { API_URL as URL } from "../../utils/constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -40,6 +41,8 @@ export default function Products({ route, navigation }) {
   const [cartProducts, setCartProducts] = useState([]);
   const [totalPanier, setTotalPanier] = useState(0.0);
   const [totalSelectedProduct, setTotalSelectedProduct] = useState(0.0);
+  const [loading, setLoading] = React.useState(false);
+  const [timedOut, setTimedOut] = React.useState(false);
   const { category, label } = route.params;
 
   // const productsArray = getProductsByCategory(category.id);
@@ -156,20 +159,33 @@ export default function Products({ route, navigation }) {
   };
 
   const findProductsByCategory = (categoryId) => {
+    setTimedOut(false);
+    setLoading(true);
     axios
-      .get(URL + "/generated/product/categoryProduit/id/" + categoryId)
+      .get(URL + "/generated/product/categoryProduit/id/" + categoryId, {
+        timeout: 9000,
+      })
       .then((response) => {
         // console.log("Products Array == ", response.data);
         setProducts(response.data);
+        setLoading(false);
+        setTimedOut(false);
       })
       .catch((error) => {
+        setLoading(false);
         console.log(error);
-        Alert.alert(
-          "Echec de la connexion !",
-          "Il y a un problème au niveau du serveur !",
-          [{ text: "OK" }]
-        );
-        return;
+        let myStr = error + " ";
+        // console.log("MYSTR === ", myStr);
+        if (myStr.includes("timeout")) {
+          setTimedOut(true);
+          Alert.alert(
+            "Echec de la connexion !",
+            "Il y a un problème au niveau du serveur :/",
+            [{ text: "OK" }]
+          );
+
+          return;
+        }
       });
   };
 
@@ -205,6 +221,7 @@ export default function Products({ route, navigation }) {
 
   return (
     <View style={{ flex: 1 }}>
+      <Loader loading={loading} />
       {/* <Toast
         visible={visibleToast}
         message={
@@ -216,7 +233,7 @@ export default function Products({ route, navigation }) {
         }
       /> */}
 
-      {products.length == 0 ? (
+      {products.length == 0 && timedOut ? (
         <View
           style={{
             flex: 1,
@@ -225,9 +242,25 @@ export default function Products({ route, navigation }) {
           }}
         >
           <Image
-            style={{ width: 125, height: 125 }}
-            source={require("../../assets/images/waiting.png")}
+            style={{ width: 255, height: 255 }}
+            source={require("../../assets/images/food.png")}
           />
+          <Text style={{ marginTop: 30, fontSize: 18 }}>
+            Server unreachable :(
+          </Text>
+          <Text
+            onPress={() => {
+              findProductsByCategory(category.id);
+            }}
+            style={{
+              color: "#f7a21a",
+              fontSize: 17,
+              fontWeight: "bold",
+              marginTop: 7,
+            }}
+          >
+            Refresh
+          </Text>
         </View>
       ) : (
         <FlatList

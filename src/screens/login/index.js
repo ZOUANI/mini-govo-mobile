@@ -11,6 +11,7 @@ import {
   Alert,
 } from "react-native";
 import styles from "./styles";
+import Loader from "../../components/loader";
 import * as Animatable from "react-native-animatable";
 // import LinearGradient from "react-native-linear-gradient";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
@@ -32,6 +33,8 @@ const Login = ({ navigation }) => {
     isValidUser: true,
     isValidPassword: true,
   });
+
+  const [loading, setLoading] = React.useState(false);
 
   // const { colors } = useTheme();
 
@@ -94,8 +97,9 @@ const Login = ({ navigation }) => {
 
   const loginHandle = (email, password) => {
     console.log("********** Login Screen (loginHandle) **********");
-
+    setLoading(true);
     if (data.email.length == 0 || data.password.length == 0) {
+      setLoading(false);
       Alert.alert(
         "Echec !",
         "L'email et le mot de passe ne doivent pas être vides !",
@@ -132,12 +136,13 @@ const Login = ({ navigation }) => {
 
   const getUserByLogin = (postData) => {
     axios
-      .post(URL + "/generated/auth/login", postData)
+      .post(URL + "/generated/auth/login", postData, { timeout: 9000 })
       .then((response) => {
         console.log("TOKEN == ", response.data.token);
         console.log("USER == ", response.data.userVo);
 
         if (response.data.token == null || response.data.token.length == 0) {
+          setLoading(false);
           Alert.alert(
             "Echec de la connexion !",
             "L'email ou le mot de passe est incorrect !",
@@ -156,26 +161,40 @@ const Login = ({ navigation }) => {
           role_id: response.data.userVo.roleVo.id,
           userToken: response.data.token,
         };
-
         console.log("Welcome", foundUser.prenom, foundUser.nom);
+        setLoading(false);
         signIn(foundUser);
         // setTimeout(() => {
-        //   // console.log("TIME OUT !!");
-        // }, 2000);
+        //   setLoading(false);
+        //   console.log("TIME OUT !!");
+        // }, 6000);
       })
       .catch((error) => {
+        setLoading(false);
         console.log(error);
-        Alert.alert(
-          "Echec de la connexion !",
-          "L'email ou le mot de passe est incorrect !",
-          [{ text: "OK" }]
-        );
-        return;
+        let myStr = error + " ";
+        // console.log("MYSTR === ", myStr);
+        if (myStr.includes("timeout")) {
+          Alert.alert(
+            "Serveur injoignable !",
+            "Il y'a un problème de connexion avec le serveur :/",
+            [{ text: "OK" }]
+          );
+          return;
+        } else {
+          Alert.alert(
+            "Echec de la connexion !",
+            "L'email ou le mot de passe est incorrect !",
+            [{ text: "OK" }]
+          );
+          return;
+        }
       });
   };
 
   return (
     <View style={styles.container}>
+      <Loader loading={loading} />
       <StatusBar backgroundColor="#f7a21a" barStyle="light-content" />
       <View style={styles.header}>
         <Text style={styles.text_header}>S'authentifier </Text>

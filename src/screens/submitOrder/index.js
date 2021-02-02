@@ -13,6 +13,7 @@ import {
   Pressable,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
+import Loader from "../../components/loader";
 import styles from "./styles";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -27,6 +28,8 @@ export default function SubmitOrder({ route, navigation }) {
   const [telephone, setTelephone] = useState("");
   const [user, setUser] = useState({});
   const [orderProducts, setOrderProducts] = useState([]);
+  const [loading, setLoading] = React.useState(false);
+  const [timedOut, setTimedOut] = React.useState(false);
   const { totalPanier, products } = route.params;
 
   useEffect(() => {
@@ -140,6 +143,8 @@ export default function SubmitOrder({ route, navigation }) {
   };
 
   const valider = (postData) => {
+    setTimedOut(false);
+    setLoading(true);
     // console.log("POST DATA =====> ", postData);
     const removeFromAsyncStorage = async (array) => {
       await AsyncStorage.setItem("products", JSON.stringify(array))
@@ -151,9 +156,11 @@ export default function SubmitOrder({ route, navigation }) {
         });
     };
     axios
-      .post(URL + "/generated/command/", postData)
+      .post(URL + "/generated/command/", postData, { timeout: 9000 })
       .then((response) => {
         console.log("RESPONSE == ", response.data);
+        setLoading(false);
+        setTimedOut(false);
         if (response.data != null) {
           let emptyProducts = [];
           removeFromAsyncStorage(emptyProducts);
@@ -164,22 +171,30 @@ export default function SubmitOrder({ route, navigation }) {
             { cancelable: false }
           );
         }
-        // setTimeout(() => {
-        //   console.log("TIME OUT !!");
-        // }, 2000);
       })
       .catch((error) => {
-        // console.log("KAYN CHI ERROR !!!!!!!");
+        setLoading(false);
         console.log(error);
-        Alert.alert("Echec !", "Il y a un problème au niveau du serveur !", [
-          { text: "OK" },
-        ]);
-        return;
+        let myStr = error + " ";
+        if (myStr.includes("timeout")) {
+          setTimedOut(true);
+          Alert.alert(
+            "Echec de la connexion !",
+            "Il y a un problème au niveau du serveur :/",
+            [{ text: "OK" }]
+          );
+          return;
+        } else {
+          setTimedOut(false);
+          Alert.alert("Echec", "Il y a une erreur !", [{ text: "OK" }]);
+          return;
+        }
       });
   };
 
   return (
     <View style={{ flex: 1 }}>
+      <Loader loading={loading} />
       {/* <Text>COMING SOON!</Text> */}
       <ScrollView>
         <View style={styles.container}>

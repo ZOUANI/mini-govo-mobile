@@ -10,6 +10,7 @@ import {
   ScrollView,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
+import Loader from "../../components/loader";
 import InputSpinner from "react-native-input-spinner";
 // import styles from "../../styles/styles";
 // import { products, categories } from "../../data/dataArrays";
@@ -21,11 +22,15 @@ export default function Panier({ route, navigation }) {
   const [quantity, setQuantity] = useState(1);
   const [totalPanier, setTotalPanier] = useState(0.0);
   const [mToken, setMToken] = useState("");
+  const [loading, setLoading] = React.useState(true);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener("focus", () => {
       console.log("!! useEffect panier !!");
+
       const getProductsFromStorage = async () => {
+        setLoading(true);
+
         let existingProducts;
         let userToken;
         try {
@@ -37,14 +42,21 @@ export default function Panier({ route, navigation }) {
             let mProducts = JSON.parse(existingProducts);
             updateTotalPanier(mProducts);
             setProducts(mProducts);
+            setTimeout(() => {
+              setLoading(false);
+            }, 500);
             // console.log("State dyal products == ", products);
           }
+          setTimeout(() => {
+            setLoading(false);
+          }, 500);
           if (userToken != null) {
             setMToken(userToken);
           } else {
             setMToken("");
           }
         } catch (e) {
+          setLoading(false);
           console.log(e);
         }
       };
@@ -245,9 +257,10 @@ export default function Panier({ route, navigation }) {
 
   return (
     <View style={{ flex: 1 }}>
+      <Loader loading={loading} />
       {/* <Text>THIS IS THE PANIER SCREEN, WELCOME !</Text> */}
       {/* <ScrollView> */}
-      {products.length == 0 ? (
+      {products.length == 0 && !loading ? (
         <View
           style={{
             flex: 1,

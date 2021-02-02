@@ -9,32 +9,48 @@ import {
   TouchableHighlight,
   Alert,
 } from "react-native";
-// import { categories } from "../../data/dataArrays";
+import Loader from "../../components/loader";
 import styles from "../../styles/styles";
 import { API_URL as URL } from "../../utils/constants";
 
 export default function SuperCategories({ navigation }) {
   const [categories, setCategories] = React.useState([]);
+  const [loading, setLoading] = React.useState(false);
+  const [timedOut, setTimedOut] = React.useState(false);
 
   useEffect(() => {
-    findAllCategories();
-  }, []);
+    const unsubscribe = navigation.addListener("focus", () => {
+      console.log("!! useEffect categories !!");
+      findAllCategories();
+    });
+    return unsubscribe;
+  }, [navigation]);
 
   const findAllCategories = () => {
+    setTimedOut(false);
+    setLoading(true);
     axios
-      .get(URL + "/generated/categoryProduit/")
+      .get(URL + "/generated/categoryProduit/", { timeout: 9000 })
       .then((response) => {
         // console.log("Categories Array == ", response.data);
         setCategories(response.data);
+        setLoading(false);
+        setTimedOut(false);
       })
       .catch((error) => {
+        setLoading(false);
         console.log(error);
-        Alert.alert(
-          "Echec de la connexion !",
-          "Il y a un problème au niveau du serveur !",
-          [{ text: "OK" }]
-        );
-        return;
+        let myStr = error + " ";
+        // console.log("MYSTR === ", myStr);
+        if (myStr.includes("timeout")) {
+          setTimedOut(true);
+          Alert.alert(
+            "Echec de la connexion !",
+            "Il y a un problème au niveau du serveur :/",
+            [{ text: "OK" }]
+          );
+          return;
+        }
       });
   };
 
@@ -61,7 +77,8 @@ export default function SuperCategories({ navigation }) {
 
   return (
     <View style={styles.container}>
-      {categories.length == 0 ? (
+      <Loader loading={loading} />
+      {categories.length == 0 && timedOut ? (
         <View
           style={{
             flex: 1,
@@ -70,9 +87,25 @@ export default function SuperCategories({ navigation }) {
           }}
         >
           <Image
-            style={{ width: 125, height: 125 }}
-            source={require("../../assets/images/waiting.png")}
+            style={{ width: 255, height: 255 }}
+            source={require("../../assets/images/food.png")}
           />
+          <Text style={{ marginTop: 30, fontSize: 18 }}>
+            Server unreachable :(
+          </Text>
+          <Text
+            onPress={() => {
+              findAllCategories();
+            }}
+            style={{
+              color: "#f7a21a",
+              fontSize: 17,
+              fontWeight: "bold",
+              marginTop: 7,
+            }}
+          >
+            Refresh
+          </Text>
         </View>
       ) : (
         <FlatList

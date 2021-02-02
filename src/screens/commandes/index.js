@@ -3,6 +3,7 @@ import {
   FlatList,
   Text,
   View,
+  Image,
   TouchableHighlight,
   TouchableOpacity,
   Alert,
@@ -10,10 +11,13 @@ import {
 import styles from "./styles";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
+import Loader from "../../components/loader";
 import { API_URL as URL } from "../../utils/constants";
 
 export default function Commande({ navigation }) {
   const [Commandes, setCommandes] = useState([]);
+  const [loading, setLoading] = React.useState(false);
+  const [timedOut, setTimedOut] = React.useState(false);
 
   async function countOrderLines() {
     // console.log("in countOrderLines");
@@ -34,28 +38,48 @@ export default function Commande({ navigation }) {
     } catch (e) {
       console.log(e);
     }
-
+    setLoading(true);
     axios
-      .get(URL + "/generated/command/client/id/" + mUser.id, {
-        // headers: { Authorization: `Bearer ${mUser.userToken}` },
-      })
+      .get(
+        URL + "/generated/command/client/id/" + mUser.id,
+        { timeout: 3000 },
+        {
+          // headers: { Authorization: `Bearer ${mUser.userToken}` },
+        }
+      )
       .then((response) => {
         setCommandes(response.data);
+        setLoading(false);
+        setTimedOut(false);
       })
       .catch((error) => {
+        setLoading(false);
         console.log(error);
-        Alert.alert(
-          "Echec de la connexion !",
-          "Il y a un problème au niveau du serveur !",
-          [{ text: "OK" }]
-        );
-        return;
+        let myStr = error + " ";
+        // console.log("MYSTR === ", myStr);
+        if (myStr.includes("timeout")) {
+          setTimedOut(true);
+          Alert.alert(
+            "Echec de la connexion !",
+            "Il y a un problème au niveau du serveur :/",
+            [{ text: "OK" }]
+          );
+          return;
+        } else {
+          setTimedOut(false);
+          Alert.alert("Echec", "Il y a une erreur !", [{ text: "OK" }]);
+          return;
+        }
       });
   };
 
   useEffect(() => {
-    findCommandsByClient();
-  }, []);
+    const unsubscribe = navigation.addListener("focus", () => {
+      console.log("!! useEffect commandes !!");
+      findCommandsByClient();
+    });
+    return unsubscribe;
+  }, [navigation]);
 
   onPressCommande = (item) => {
     navigation.navigate("CommandeDetails", { item });
@@ -112,17 +136,47 @@ export default function Commande({ navigation }) {
   );
 
   return (
-    <View
-    // style={styles.container}
-    >
-      <FlatList
-        vertical
-        showsVerticalScrollIndicator={false}
-        numColumns={1}
-        data={Commandes}
-        renderItem={renderCommandes}
-        keyExtractor={(item) => `${item.id}`}
-      />
+    <View style={{ flex: 1 }}>
+      <Loader loading={loading} />
+      {Commandes.length == 0 && timedOut ? (
+        <View
+          style={{
+            flex: 1,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Image
+            style={{ width: 255, height: 255 }}
+            source={require("../../assets/images/food.png")}
+          />
+          <Text style={{ marginTop: 30, fontSize: 18 }}>
+            Server unreachable :(
+          </Text>
+          <Text
+            onPress={() => {
+              findCommandsByClient();
+            }}
+            style={{
+              color: "#f7a21a",
+              fontSize: 17,
+              fontWeight: "bold",
+              marginTop: 7,
+            }}
+          >
+            Refresh
+          </Text>
+        </View>
+      ) : (
+        <FlatList
+          vertical
+          showsVerticalScrollIndicator={false}
+          numColumns={1}
+          data={Commandes}
+          renderItem={renderCommandes}
+          keyExtractor={(item) => `${item.id}`}
+        />
+      )}
     </View>
   );
 }

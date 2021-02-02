@@ -15,10 +15,9 @@ import {
 } from "react-native";
 import styles from "./styles";
 import * as Animatable from "react-native-animatable";
-// import LinearGradient from "react-native-linear-gradient";
+import Loader from "../../components/loader";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import Feather from "react-native-vector-icons/Feather";
-// import api_url from "../../utils/constants";
 import { API_URL as URL } from "../../utils/constants";
 import { AuthContext } from "../../components/context";
 
@@ -33,15 +32,29 @@ const Signup = ({ navigation }) => {
     secureTextEntry: true,
     confirm_secureTextEntry: true,
   });
+  const [loading, setLoading] = React.useState(false);
 
   const { signUp } = React.useContext(AuthContext);
 
   const registerHandle = (email, password, first_name, last_name) => {
     console.log("********** REGISTER TRIGGERED **********");
-    console.log("email = ", email);
-    console.log("password = ", password);
-    console.log("first_name = ", first_name);
-    console.log("last_name = ", last_name);
+    setLoading(true);
+    // console.log("email = ", email);
+    // console.log("password = ", password);
+    // console.log("first_name = ", first_name);
+    // console.log("last_name = ", last_name);
+    if (
+      email.length == 0 ||
+      password.length == 0 ||
+      first_name.length == 0 ||
+      last_name.length == 0
+    ) {
+      setLoading(false);
+      Alert.alert("Echec", "Merci de remplir tout les champs !", [
+        { text: "D'accord" },
+      ]);
+      return;
+    }
     let postData = {
       email: email.trim(),
       password: password,
@@ -58,7 +71,7 @@ const Signup = ({ navigation }) => {
 
   const register = (postData) => {
     axios
-      .post(URL + "/generated/auth/register", postData)
+      .post(URL + "/generated/auth/register", postData, { timeout: 9000 })
       .then((response) => {
         console.log("TOKEN == ", response.data.token);
         console.log("USER == ", response.data.userVo);
@@ -73,7 +86,7 @@ const Signup = ({ navigation }) => {
           role_id: response.data.userVo.roleVo.id,
           userToken: response.data.token,
         };
-
+        setLoading(false);
         console.log("Welcome", foundUser.prenom, foundUser.nom);
         signUp(foundUser);
         // setTimeout(() => {
@@ -81,12 +94,25 @@ const Signup = ({ navigation }) => {
         // }, 2000);
       })
       .catch((error) => {
-        // console.log("KAYN CHI ERROR !!!!!!!");
+        setLoading(false);
         console.log(error);
-        Alert.alert("Echec !", "Il y a un problème au niveau du serveur !", [
-          { text: "OK" },
-        ]);
-        return;
+        let myStr = error + " ";
+        // console.log("MYSTR === ", myStr);
+        if (myStr.includes("timeout")) {
+          Alert.alert(
+            "Serveur injoignable !",
+            "Il y'a un problème de connexion avec le serveur :/",
+            [{ text: "OK" }]
+          );
+          return;
+        } else {
+          Alert.alert(
+            "Erreur !",
+            "L'inscription a échoué, merci de réessayer plus tard",
+            [{ text: "OK" }]
+          );
+          return;
+        }
       });
   };
 
@@ -187,6 +213,7 @@ const Signup = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      <Loader loading={loading} />
       <StatusBar backgroundColor="#f7a21a" barStyle="light-content" />
       <View style={styles.header}>
         <Text style={styles.text_header}>Inscrivez vous !</Text>

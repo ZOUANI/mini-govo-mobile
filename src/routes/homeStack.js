@@ -1,7 +1,7 @@
 import * as React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import SuperCategories from "../screens/superCategories";
-import Categories from "../screens/categories";
+// import Categories from "../screens/categories";
 import Products from "../screens/products";
 import Header from "../components/header";
 
@@ -23,19 +23,19 @@ export default function HomeStack() {
         component={SuperCategories}
         options={({ navigation }) => ({
           headerTitle: () => (
-            <Header navigation={navigation} title="Super Categories" />
+            <Header navigation={navigation} title="Nos catégories" />
           ),
         })}
       />
-      <Stack.Screen
+      {/* <Stack.Screen
         name="Categories"
         component={Categories}
         options={{ title: "Catégories" }}
-      />
+      /> */}
       <Stack.Screen
         name="Products"
         component={Products}
-        options={({ route }) => ({ title: route.params.title })}
+        options={({ route }) => ({ title: route.params.label })}
       />
     </Stack.Navigator>
   );

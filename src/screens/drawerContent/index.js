@@ -12,6 +12,7 @@ import {
   Switch,
 } from "react-native-paper";
 import styles from "./styles";
+import Loader from "../../components/loader";
 import { DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer";
 
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -19,6 +20,7 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { AuthContext } from "../../components/context";
 
 export function DrawerContent(props) {
+  const [loading, setLoading] = React.useState(false);
   const paperTheme = useTheme();
 
   React.useEffect(() => {
@@ -29,6 +31,7 @@ export function DrawerContent(props) {
 
   return (
     <View style={{ flex: 1 }}>
+      <Loader loading={loading} />
       <DrawerContentScrollView {...props}>
         <View style={styles.drawerContent}>
           <View
@@ -158,8 +161,12 @@ export function DrawerContent(props) {
             )}
             label="Logout"
             onPress={() => {
-              signOut();
-              props.navigation.navigate("Home", { screen: "Home" });
+              setLoading(true);
+              setTimeout(() => {
+                setLoading(false);
+                signOut();
+                props.navigation.navigate("Home", { screen: "Home" });
+              }, 1000);
             }}
           />
         </Drawer.Section>
