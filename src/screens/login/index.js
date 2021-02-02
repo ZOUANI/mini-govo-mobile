@@ -157,6 +157,8 @@ const Login = ({ navigation }) => {
           prenom: response.data.userVo.firstName,
           email: response.data.userVo.email,
           code: response.data.userVo.code,
+          address: response.data.userVo.address,
+          phoneNumber: response.data.userVo.phoneNumber,
           password: response.data.userVo.password,
           role_id: response.data.userVo.roleVo.id,
           userToken: response.data.token,

@@ -24,6 +24,8 @@ export default function SubmitOrder({ route, navigation }) {
   const [mode, setMode] = useState("date");
   const [show, setShow] = useState(false);
   const [adresse, setAdresse] = useState("");
+  const [nom, setNom] = useState("");
+  const [prenom, setPrenom] = useState("");
   const [commentaire, setCommentaire] = useState("");
   const [telephone, setTelephone] = useState("");
   const [user, setUser] = useState({});
@@ -51,15 +53,28 @@ export default function SubmitOrder({ route, navigation }) {
         setOrderProducts(listProducts);
 
         const getConnectedUser = async () => {
+          setLoading(true);
           let connectedUser;
           try {
             connectedUser = await AsyncStorage.getItem("connectedUser");
             if (connectedUser != null) {
               let mUser = JSON.parse(connectedUser);
+              if (mUser.phoneNumber != null && mUser.address != null) {
+                setAdresse(mUser.address);
+                setTelephone(mUser.phoneNumber);
+                setNom(mUser.lastName);
+                setPrenom(mUser.firstName);
+              }
               setUser(mUser);
+              setTimeout(() => {
+                setLoading(false);
+              }, 500);
             }
           } catch (e) {
             console.log(e);
+            setTimeout(() => {
+              setLoading(false);
+            }, 500);
           }
         };
 
@@ -155,6 +170,15 @@ export default function SubmitOrder({ route, navigation }) {
           console.log("There was an error updating the products");
         });
     };
+    const UpdateUserAsyncStorage = async (user) => {
+      await AsyncStorage.setItem("connectedUser", JSON.stringify(user))
+        .then(() => {
+          console.log("Updated successfully");
+        })
+        .catch(() => {
+          console.log("There was an error updating the products");
+        });
+    };
     axios
       .post(URL + "/generated/command/", postData, { timeout: 9000 })
       .then((response) => {
@@ -164,6 +188,11 @@ export default function SubmitOrder({ route, navigation }) {
         if (response.data != null) {
           let emptyProducts = [];
           removeFromAsyncStorage(emptyProducts);
+          let xUser = { ...user };
+          xUser.address = adresse;
+          xUser.phoneNumber = telephone;
+          setUser(xUser);
+          UpdateUserAsyncStorage(xUser);
           Alert.alert(
             "",
             "Votre commande a été validé avec succèss",
@@ -198,6 +227,25 @@ export default function SubmitOrder({ route, navigation }) {
       {/* <Text>COMING SOON!</Text> */}
       <ScrollView>
         <View style={styles.container}>
+          <Text style={{ fontSize: 16, marginBottom: 7 }}>
+            Client : {user.nom} {user.prenom}
+          </Text>
+          <Text style={{ fontSize: 16, marginBottom: 7 }}>
+            E-mail : {user.email}
+          </Text>
+          {/* <Text>{user.nom}</Text> */}
+          {/* <TextInput
+            placeholder="Votre numéro de téléphone personnel"
+            keyboardType="phone-pad"
+            placeholderTextColor="#666666"
+            style={styles.textInput}
+            autoCapitalize="none"
+            value={telephone}
+            onChangeText={(val) => handleTelephoneChange(val)}
+            // onEndEditing={(e) => handleValidUser(e.nativeEvent.text)}
+          /> */}
+        </View>
+        <View style={styles.container}>
           <Text>Téléphone :</Text>
           <TextInput
             placeholder="Votre numéro de téléphone personnel"
@@ -205,6 +253,7 @@ export default function SubmitOrder({ route, navigation }) {
             placeholderTextColor="#666666"
             style={styles.textInput}
             autoCapitalize="none"
+            value={telephone}
             onChangeText={(val) => handleTelephoneChange(val)}
             // onEndEditing={(e) => handleValidUser(e.nativeEvent.text)}
           />
@@ -216,6 +265,7 @@ export default function SubmitOrder({ route, navigation }) {
             placeholderTextColor="#666666"
             style={styles.textInput}
             autoCapitalize="none"
+            value={adresse}
             onChangeText={(val) => handleAdresseChange(val)}
             // onEndEditing={(e) => handleValidUser(e.nativeEvent.text)}
           />
@@ -251,15 +301,9 @@ export default function SubmitOrder({ route, navigation }) {
             multiline
             numberOfLines={4}
             placeholderTextColor="#666666"
-            style={{
-              marginTop: 7,
-              borderRadius: 10,
-              color: "#05375a",
-              borderWidth: 1,
-              borderColor: "#bfbfbf",
-              paddingHorizontal: 15,
-            }}
+            style={styles.textInput}
             autoCapitalize="none"
+            value={commentaire}
             onChangeText={(val) => handleCommentaireChange(val)}
             // onEndEditing={(e) => handleValidUser(e.nativeEvent.text)}
           />

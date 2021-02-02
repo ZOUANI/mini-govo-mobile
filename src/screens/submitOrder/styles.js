@@ -12,12 +12,15 @@ const styles = StyleSheet.create({
   textInput: {
     flex: 1,
     marginTop: 7,
-    borderRadius: 10,
-    color: "#05375a",
-    borderWidth: 1,
-    borderColor: "#bfbfbf",
-    height: 40,
-    paddingHorizontal: 15,
+    // borderRadius: 10,
+    // color: "#05375a",
+    // borderWidth: 1,
+    // borderColor: "#bfbfbf",
+    // height: 40,
+    marginHorizontal: 7,
+
+    borderBottomColor: "#00008f",
+    borderBottomWidth: 1.5,
   },
   appButtonContainer: {
     flex: 1,
