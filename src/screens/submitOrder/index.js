@@ -141,20 +141,48 @@ export default function SubmitOrder({ route, navigation }) {
 
     let randomId = Date.now();
     let today = formatDate(new Date());
-
-    let postData = {
-      dateSubmission: stringDate,
-      orderDate: today,
-      address: adresse,
-      reference: "CMD-" + randomId,
-      total: totalPanier,
-      clientVo: {
-        id: user.id,
-      },
-      orderLinesVo: orderProducts,
-    };
-
-    valider(postData);
+    if (telephone.length < 10 || telephone.length > 14) {
+      Alert.alert(
+        "Attention",
+        "Merci de fournir un numéro de téléphone valide",
+        [{ text: "D'accord" }]
+      );
+    } else if (adresse.length < 5) {
+      Alert.alert("Attention", "Merci de fournir une adresse valide", [
+        { text: "D'accord" },
+      ]);
+    } else if (stringDate.length == 0) {
+      Alert.alert("Attention", "Merci de choisir une date de livraison", [
+        { text: "D'accord" },
+      ]);
+    } else {
+      let postData = {
+        dateSubmission: stringDate,
+        orderDate: today,
+        address: adresse,
+        reference: "CMD-" + randomId,
+        total: totalPanier,
+        orderStatusVo: {
+          id: "1", //etat en attente par defaut..
+        },
+        clientVo: {
+          id: user.id,
+          phoneNumber: telephone,
+          address: adresse,
+        },
+        commentsVo: [
+          {
+            message: commentaire,
+            commentDate: today,
+            userVo: {
+              id: user.id,
+            },
+          },
+        ],
+        orderLinesVo: orderProducts,
+      };
+      valider(postData);
+    }
   };
 
   const valider = (postData) => {
