@@ -201,12 +201,25 @@ export default function AffectedTasks({ navigation }) {
                 <Dialog.Description style={{ fontSize: 14 }}>
                   Description :
                 </Dialog.Description>
-                <Dialog.Description style={{ marginLeft: 16, fontSize: 14 }}>
-                  {selectedItem.description}
-                </Dialog.Description>
+                {selectedItem.description != null &&
+                  selectedItem.description !== "" && (
+                    <Dialog.Description
+                      style={{ marginLeft: 16, fontSize: 14 }}
+                    >
+                      {selectedItem.description}
+                    </Dialog.Description>
+                  )}
               </View>
-              <Dialog.Button label="Ignorer" onPress={handleIgnorer} />
-              <Dialog.Button label="S'en charger" onPress={handleEncharger} />
+              <View style={{ paddingVertical: 22, flexDirection: "row" }}>
+                <Dialog.Button
+                  label="Annuler"
+                  onPress={() => {
+                    setVisible(false);
+                  }}
+                />
+                <Dialog.Button label="Refuser" onPress={handleIgnorer} />
+                <Dialog.Button label="S'en charger" onPress={handleEncharger} />
+              </View>
             </Dialog.Container>
           </View>
         )}

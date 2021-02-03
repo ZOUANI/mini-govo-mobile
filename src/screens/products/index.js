@@ -43,6 +43,7 @@ export default function Products({ route, navigation }) {
   const [totalSelectedProduct, setTotalSelectedProduct] = useState(0.0);
   const [loading, setLoading] = React.useState(false);
   const [timedOut, setTimedOut] = React.useState(false);
+  const [description, setDescription] = React.useState("");
   const { category, label } = route.params;
 
   // const productsArray = getProductsByCategory(category.id);
@@ -105,6 +106,7 @@ export default function Products({ route, navigation }) {
       categoryId: selectedItem.categoryProduitVo.id,
       imagePath: selectedItem.imagePath,
       quantity: quantity,
+      description: description,
     };
     const saveNewProduct = async (xProducts) => {
       await AsyncStorage.setItem("products", JSON.stringify(xProducts))
@@ -154,6 +156,7 @@ export default function Products({ route, navigation }) {
     // setvisibleToast(true);
     setVisible(false);
     setQuantity(1);
+    setDescription("");
     setTotalSelectedProduct(0);
     setSelectedItem({});
   };
@@ -187,6 +190,10 @@ export default function Products({ route, navigation }) {
           return;
         }
       });
+  };
+
+  const handleDescriptionChange = (val) => {
+    setDescription(val);
   };
 
   onPressProduct = (item) => {
@@ -335,6 +342,7 @@ export default function Products({ route, navigation }) {
               setVisible(false);
               setTotalSelectedProduct(0);
               setQuantity(1);
+              setDescription("");
               setSelectedItem({});
             }}
           >
@@ -344,6 +352,8 @@ export default function Products({ route, navigation }) {
             <Dialog.Input
               placeholder="Description.."
               multiline
+              value={description}
+              onChangeText={(val) => handleDescriptionChange(val)}
               style={{
                 fontSize: 13,
                 borderBottomColor: "#000",
@@ -379,6 +389,7 @@ export default function Products({ route, navigation }) {
                 setVisible(false);
                 setTotalSelectedProduct(0);
                 setQuantity(1);
+                setDescription("");
                 setSelectedItem({});
               }}
             />

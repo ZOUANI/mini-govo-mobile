@@ -44,8 +44,12 @@ export default function SubmitOrder({ route, navigation }) {
           let mProduct = {
             price: element.price,
             orderedQte: element.quantity,
+            description: element.description,
             productVo: {
               id: element.id,
+            },
+            orderStatusVo: {
+              id: "1", //etat en attente par defaut..
             },
           };
           listProducts.push(mProduct);
@@ -188,7 +192,7 @@ export default function SubmitOrder({ route, navigation }) {
   const valider = (postData) => {
     setTimedOut(false);
     setLoading(true);
-    // console.log("POST DATA =====> ", postData);
+    console.log("POST DATA VALIDER COMMANDE =====> ", postData);
     const removeFromAsyncStorage = async (array) => {
       await AsyncStorage.setItem("products", JSON.stringify(array))
         .then(() => {
